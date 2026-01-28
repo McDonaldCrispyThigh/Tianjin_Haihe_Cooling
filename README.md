@@ -1,13 +1,13 @@
-# 🌊 The Blue Spine: Spatiotemporal Analysis of Urban Cooling Island Intensity
+# The Blue Spine: Spatiotemporal Analysis of Urban Cooling Island Intensity
 
-## 📖 Project Overview
+## Project Overview
 Tianjin, a megacity in Northern China, faces intensifying Urban Heat Island (UHI) effects due to rapid urbanization. While the Haihe River ("The Mother River") acts as a critical blue space, its specific cooling capacity remains unquantified for recent years.
 
 This project utilizes **Landsat 8/9 satellite imagery (2020–2025)** to quantify the micro-climatic regulation of the Haihe River. Instead of traditional global statistics, this repository implements an automated **Python workflow** and **Geographically Weighted Regression (GWR)** to model the spatial heterogeneity of the cooling effect, providing evidence-based metrics for urban resilience planning.
 
 ---
 
-## 🚀 Key Features (Technical Highlights)
+## Key Features (Technical Highlights)
 
 - **Automated LST Retrieval**  
   A custom Python script (using ArcPy) to batch-process Level-2 Landsat thermal bands, converting DN values to Celsius and applying cloud masking.
@@ -23,7 +23,7 @@ This project utilizes **Landsat 8/9 satellite imagery (2020–2025)** to quantif
 
 ---
 
-## 🛠️ Methodology & Workflow
+## Methodology & Workflow
 
 ### Data Acquisition
 - **Source:** USGS EarthExplorer (Landsat 8/9 OLI/TIRS Level-2 Science Products)  
@@ -50,7 +50,7 @@ This project utilizes **Landsat 8/9 satellite imagery (2020–2025)** to quantif
 
 ---
 
-## 📂 Repository Structure
+## Repository Structure
 
 ```text
 Tianjin_Haihe_Cooling/
@@ -72,7 +72,7 @@ Tianjin_Haihe_Cooling/
 
 ---
 
-## 📊 Preliminary Results (Coming Soon)
+## Preliminary Results (Coming Soon)
 
 - LST Distribution Map (2025) – *[Placeholder]*  
 - GWR Coefficient Map – *[Placeholder]*  
@@ -80,7 +80,7 @@ Tianjin_Haihe_Cooling/
 
 ---
 
-## 💻 Requirements
+## Requirements
 
 - **ArcGIS Pro 3.0+** (Advanced License required for Spatial Statistics tools)  
 - **Python 3.x** (Standard ArcPy environment)  
@@ -88,7 +88,7 @@ Tianjin_Haihe_Cooling/
 
 ---
 
-## 👤 Author
+## Author
 
 **Congyuan Zheng**  
 University of Colorado Boulder  
