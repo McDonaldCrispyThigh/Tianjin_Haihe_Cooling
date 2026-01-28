@@ -54,14 +54,19 @@ This project utilizes **Landsat 8/9 satellite imagery (2020–2025)** to quantif
 
 ```text
 Tianjin_Haihe_Cooling/
-├── Data/                 # (Ignored by Git) Raw Landsat TIFs & Shapefiles
-├── Scripts/              # Python automation tools
-│   ├── 01_LST_Retrieval.py    # Batch processing script
-│   └── 02_NDWI_Extraction.py  # Water body extraction
-├── Maps/                 # Final output visualizations (JPG/PDF)
-├── Docs/                 # Project documentation & reports
+Tianjin_Haihe_Cooling/
+├── Data/                 # All GIS Data (Ignored by Git)
+├── Scripts/              # Python code (.py or .ipynb)
+│   ├── 01_preprocessing.py
+│   ├── 02_LST_retrieval.py
+│   └── 03_GWR_analysis.py
+├── Maps/                 # Final output maps (JPG, PDF) - Deliverables [5]
+├── Docs/                 # Course assignment documents
+│   ├── Vision_Statement.pdf
+│   ├── Gantt_Chart.xlsx
+│   └── Final_Report.docx
 ├── .gitignore            # Git ignore configuration
-└── README.md             # Project documentation
+└── README.md             # Project documentation (Portfolio landing page)
 ```
 
 
