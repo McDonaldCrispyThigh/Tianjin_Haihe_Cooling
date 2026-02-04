@@ -1,7 +1,7 @@
 # The Blue Spine: Spatiotemporal Analysis of Urban Cooling Island (UCI) Intensity in Tianjin
 ### Quantifying the Micro-climatic Regulation of the Haihe River (2020–2025)
 
-![Status](https://img.shields.io/badge/Status-In%20Progress-yellow  ) ![Python](https://img.shields.io/badge/Python-3.9-blue  ) ![ArcGIS](https://img.shields.io/badge/ArcGIS%20Pro-3.0-green  ) ![License](https://img.shields.io/badge/License-MIT-lightgrey  )
+![Status](https://img.shields.io/badge/Status-Analysis%20Complete-brightgreen) ![Python](https://img.shields.io/badge/Python-3.9-blue) ![GEE](https://img.shields.io/badge/Google%20Earth%20Engine-Enabled-orange) ![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
 ## Project Overview
 
@@ -13,9 +13,21 @@ Tianjin, a megacity in Northern China, faces intensifying **Urban Heat Island (U
 
 ## Current Progress (2026-02-04)
 
-- Repository synced and ready for macOS workflows.
-- Core processing scripts are organized in `Scripts/` (preprocessing, index calculation, GWR).
-- Next steps: run monthly composites and analyze cooling gradients around the Haihe River.
+### ✅ Completed Phases
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| **Phase 0** | GEE data acquisition (12 monthly composites) | ✅ Complete |
+| **Phase 1** | Preprocessing (band extraction, water masking) | ✅ Complete |
+| **Phase 2** | Buffer analysis & zonal statistics (12 months) | ✅ Complete |
+| **Phase 3** | GWR/Local regression analysis (12 months) | ✅ Complete |
+| **Phase 4** | Visualization & chart generation | ✅ Complete |
+
+### 📊 Key Outputs Generated
+- 12 monthly LST gradient datasets (`Data/Gradient_Month_XX.xlsx`)
+- 12 monthly GWR sample datasets (`Data/GWR_Samples_XX.csv`, ~27,500 points each)
+- 60+ visualization charts (`Maps/`)
+- Multi-ring buffer shapefiles (`Data/Vector/`)
 
 ---
 
@@ -71,23 +83,29 @@ Scripts are designed to batch-process the following indices:
 
 ```text
 Tianjin_Haihe_Cooling/
-├── Data/                 # GIS Datasets (Excluded via .gitignore)
-│   ├── Raw/              # Original Landsat Scenes
-│   └── Processed/        # Clipped Rasters & Shapefiles
-├── Scripts/              # Automated Processing Modules
-│   ├── 01_Batch_Preprocessing.py  # Cloud masking & Clipping
-│   ├── 02_Index_Calculation.py    # LST, NDVI, NDWI Calculator
-│   └── 03_GWR_Analysis.py         # Spatial Statistics Execution
-├── Maps/                 # Visualization Outputs
-│   ├── LST_Distribution/
-│   └── Cooling_Gradient_Charts/
-├── Docs/                 # Project Management Documents
-│   ├── Vision_Statement.pdf
-│   ├── Literature_Review_Summary.pdf
-│   └── Final_Report.docx
+├── Data/                          # GIS Datasets (Excluded via .gitignore)
+│   ├── Raw_TIF/                   # GEE exported monthly composites (12 TIFs)
+│   ├── Processed/                 # Extracted LST/NDWI bands by month
+│   ├── Vector/                    # Shapefiles (Haihe_River, Buffers, etc.)
+│   ├── GWR_Results/               # GWR output shapefiles
+│   ├── Gradient_Month_XX.xlsx     # Zonal statistics per month
+│   ├── GWR_Samples_XX.csv         # Regression sample points per month
+│   └── All_Months_Gradient.xlsx   # Combined gradient summary
+├── Scripts/                       # Processing Modules
+│   ├── 00 GEE_data_acquisition.js # Google Earth Engine script
+│   ├── 01 preprocessing.py        # Band extraction & water masking
+│   ├── 02 LST retrieval.py        # Buffer analysis & zonal stats
+│   └── 03 GWR analysis.py         # Spatial regression analysis
+├── Maps/                          # Visualization Outputs (60+ charts)
+│   ├── Cooling_Gradient_XX.png    # Distance-LST curves
+│   ├── Local_Regression_XX.png    # GWR coefficient maps
+│   ├── Local_R2_XX.png            # Model fit maps
+│   └── Seasonal_Comparison_All.png
+├── Docs/                          # Documentation
+│   └── OPERATION_GUIDE.md         # Step-by-step workflow guide
 ├── .gitignore
+├── requirements.txt
 └── README.md
-
 ```
 
 ---
@@ -98,6 +116,41 @@ Tianjin_Haihe_Cooling/
 
 * **Hypothesis 1:** The cooling effect of the Haihe River is non-linear and follows a logarithmic decay function.
 * **Hypothesis 2:** The "Cooling Threshold Distance" is expected to range between **300m and 600m**, varying significantly by river width and adjacent building height.
+* **Hypothesis 3:** Areas with higher NDVI (parks along the river) will show a synergistic cooling effect (Interaction of Blue-Green Space).
+
+---
+
+## Study Area
+
+**Location:** Tianjin, China - 6 Central Districts (Heping, Nankai, Hexi, Hedong, Hebei, Hongqiao)
+
+```
+Bounding Box (WGS84):
+  Northwest: 116.9528°E, 39.3504°N
+  Southeast: 117.8853°E, 38.8987°N
+  
+Projected CRS: EPSG:32650 (WGS 84 / UTM zone 50N)
+```
+
+---
+
+## Data Source & Acquisition
+
+### Google Earth Engine Pipeline
+
+The raw data was acquired using a custom GEE script (`Scripts/00 GEE_data_acquisition.js`):
+
+| Parameter | Value |
+|-----------|-------|
+| **Satellite** | Landsat 8/9 Collection 2 Level-2 |
+| **Time Range** | 2020-01-01 to 2025-12-31 |
+| **Cloud Filter** | < 30% |
+| **Compositing** | Monthly median (all years combined) |
+| **Output Bands** | LST_Celsius, NDWI |
+| **Resolution** | 30m |
+| **CRS** | EPSG:32650 |
+
+**Output:** 12 GeoTIFF files (`Tianjin_Monthly_Median_01.tif` ... `_12.tif`)
 * **Hypothesis 3:** Areas with higher NDVI (parks along the river) will show a synergistic cooling effect (Interaction of Blue-Green Space).
 
 ---
