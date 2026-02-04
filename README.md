@@ -11,6 +11,14 @@ Tianjin, a megacity in Northern China, faces intensifying **Urban Heat Island (U
 
 ---
 
+## Current Progress (2026-02-04)
+
+- Repository synced and ready for macOS workflows.
+- Core processing scripts are organized in `Scripts/` (preprocessing, index calculation, GWR).
+- Next steps: run monthly composites and analyze cooling gradients around the Haihe River.
+
+---
+
 ## Key Scientific Objectives
 
 1.  **Quantify Cooling Intensity:** Calculate the temperature difference ($\Delta T$) between the water body and the urban matrix.
