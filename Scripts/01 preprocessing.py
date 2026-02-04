@@ -25,8 +25,8 @@ warnings.filterwarnings('ignore')
 # CONFIGURATION - MODIFY THESE PATHS TO MATCH YOUR SYSTEM
 # ============================================================================
 
-# Project workspace
-PROJECT_ROOT = r"D:\Douments\UNIVERSITY\2025-2026_2\GEOG_4503\Tianjin_Haihe_Cooling"
+# Use relative paths - script should be run from project root
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Input/Output directories
 RAW_TIF_DIR = os.path.join(PROJECT_ROOT, "Data", "Raw_TIF")

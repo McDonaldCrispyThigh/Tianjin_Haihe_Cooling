@@ -3,13 +3,13 @@
 PROJECT: The Blue Spine - Tianjin Haihe Cooling Analysis
 SCRIPT: 02 LST Retrieval & Buffer Analysis (Open Source Version)
 DESCRIPTION: 
+    - Use existing Haihe_River.shp boundary (NO water extraction needed)
     - Create multi-ring buffers around Haihe River
-    - Calculate zonal statistics (mean LST per buffer zone)
-    - Export results for gradient analysis
-    - Generate cooling gradient charts
+    - Calculate zonal statistics for ALL 12 months
+    - Generate cooling gradient charts with regression equations
 AUTHOR: Congyuan Zheng
 DATE: 2026-02
-LIBRARIES: rasterio, geopandas, pandas, numpy, matplotlib (open source)
+LIBRARIES: rasterio, geopandas, pandas, numpy, matplotlib, scipy
 =============================================================================
 """
 
@@ -20,6 +20,8 @@ import geopandas as gpd
 import pandas as pd
 from shapely.geometry import mapping
 import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
+from scipy import stats
 import os
 import warnings
 warnings.filterwarnings('ignore')
@@ -28,15 +30,15 @@ warnings.filterwarnings('ignore')
 # CONFIGURATION
 # ============================================================================
 
-PROJECT_ROOT = r"D:\Douments\UNIVERSITY\2025-2026_2\GEOG_4503\Tianjin_Haihe_Cooling"
+# Use relative paths - script should be run from project root
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Input paths
+# Input paths - Using YOUR existing Haihe_River.shp
 RAW_TIF_DIR = os.path.join(PROJECT_ROOT, "Data", "Raw_TIF")
 VECTOR_DIR = os.path.join(PROJECT_ROOT, "Data", "Vector")
-HAIHE_RIVER = os.path.join(VECTOR_DIR, "Haihe_River.shp")
+HAIHE_RIVER = os.path.join(VECTOR_DIR, "Haihe_River.shp")  # Your existing file!
 
 # Output paths
-OUTPUT_DIR = os.path.join(PROJECT_ROOT, "Data", "Processed")
 STATS_OUTPUT = os.path.join(PROJECT_ROOT, "Data")
 MAPS_DIR = os.path.join(PROJECT_ROOT, "Maps")
 
@@ -44,16 +46,39 @@ MAPS_DIR = os.path.join(PROJECT_ROOT, "Maps")
 BUFFER_DISTANCES = [30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 
                     350, 400, 450, 500, 600, 700, 800, 900, 1000]
 
+# Month names for labeling
+MONTH_NAMES = {
+    '01': 'January', '02': 'February', '03': 'March', '04': 'April',
+    '05': 'May', '06': 'June', '07': 'July', '08': 'August',
+    '09': 'September', '10': 'October', '11': 'November', '12': 'December'
+}
+
 # ============================================================================
 # ENVIRONMENT SETUP
 # ============================================================================
 
 def setup_environment():
     """Create output directories."""
-    for directory in [OUTPUT_DIR, STATS_OUTPUT, MAPS_DIR]:
+    for directory in [STATS_OUTPUT, MAPS_DIR]:
         if not os.path.exists(directory):
             os.makedirs(directory)
             print(f"✓ Created: {directory}")
+
+# ============================================================================
+# FITTING FUNCTIONS
+# ============================================================================
+
+def logarithmic_func(x, a, b):
+    """Logarithmic decay: T = a * ln(x) + b"""
+    return a * np.log(x + 1) + b
+
+def exponential_func(x, a, b, c):
+    """Exponential decay: T = a * (1 - e^(-x/b)) + c"""
+    return a * (1 - np.exp(-x / b)) + c
+
+def polynomial_func(x, a, b, c):
+    """Quadratic polynomial: T = ax² + bx + c"""
+    return a * x**2 + b * x + c
 
 # ============================================================================
 # MULTI-RING BUFFER CREATION
@@ -62,15 +87,16 @@ def setup_environment():
 def create_multi_ring_buffer(input_shp, distances):
     """
     Create multiple ring buffers around the Haihe River.
-    Each ring represents a distance zone (e.g., 0-30m, 30-60m, etc.)
+    Uses YOUR existing Haihe_River.shp boundary!
     """
     print("\n" + "="*60)
-    print("STEP 1: Creating Multi-Ring Buffers")
+    print("STEP 1: Creating Multi-Ring Buffers from Haihe_River.shp")
     print("="*60)
     
-    # Read river shapefile
+    # Read YOUR river shapefile
     river = gpd.read_file(input_shp)
-    print(f"  ✓ Loaded river shapefile: {len(river)} features")
+    print(f"  ✓ Loaded YOUR river boundary: {input_shp}")
+    print(f"  ✓ Features: {len(river)}")
     print(f"  ✓ CRS: {river.crs}")
     
     # Dissolve to single geometry
@@ -79,17 +105,12 @@ def create_multi_ring_buffer(input_shp, distances):
     
     # Create ring buffers
     rings = []
-    prev_buffer = river_geom
-    
     for i, dist in enumerate(distances):
-        # Create buffer at this distance
         current_buffer = river_geom.buffer(dist)
         
         if i == 0:
-            # First ring: from river edge to first distance
             ring = current_buffer.difference(river_geom)
         else:
-            # Subsequent rings: difference between current and previous buffer
             prev_dist = distances[i-1]
             prev_buffer = river_geom.buffer(prev_dist)
             ring = current_buffer.difference(prev_buffer)
@@ -104,36 +125,31 @@ def create_multi_ring_buffer(input_shp, distances):
     buffers_gdf = gpd.GeoDataFrame(rings, crs=river.crs)
     
     # Save to shapefile
-    output_shp = os.path.join(VECTOR_DIR, "Haihe_Buffers_Rings.shp")
+    output_shp = os.path.join(VECTOR_DIR, "Haihe_Buffers_Analysis.shp")
     buffers_gdf.to_file(output_shp)
     print(f"\n  ✓ Buffers saved: {output_shp}")
     print(f"  ✓ Total rings: {len(buffers_gdf)}")
     
-    return buffers_gdf, output_shp
+    return buffers_gdf, river_geom
 
 # ============================================================================
 # ZONAL STATISTICS
 # ============================================================================
 
 def calculate_zonal_statistics(buffers_gdf, lst_raster_path, month_str):
-    """
-    Calculate mean LST for each buffer zone.
-    This creates the data needed for the "Distance vs Temperature" curve.
-    """
-    print(f"\n  Calculating zonal statistics for Month {month_str}...")
+    """Calculate mean LST for each buffer zone."""
+    print(f"\n  Calculating zonal statistics for {MONTH_NAMES.get(month_str, month_str)}...")
     
     results = []
     
     with rasterio.open(lst_raster_path) as src:
         for idx, row in buffers_gdf.iterrows():
             try:
-                # Mask raster with buffer geometry
                 geom = [mapping(row.geometry)]
                 out_image, out_transform = mask(src, geom, crop=True, nodata=np.nan)
                 
-                # Calculate statistics (ignore NoData)
                 data = out_image[0]
-                valid_data = data[~np.isnan(data)]
+                valid_data = data[~np.isnan(data) & (data > -100) & (data < 100)]
                 
                 if len(valid_data) > 0:
                     mean_lst = np.nanmean(valid_data)
@@ -154,17 +170,11 @@ def calculate_zonal_statistics(buffers_gdf, lst_raster_path, month_str):
                     'COUNT': count
                 })
             except Exception as e:
-                print(f"    ⚠ Error at distance {row['distance']}: {e}")
                 results.append({
                     'distance': row['distance'],
-                    'MEAN': np.nan,
-                    'STD': np.nan,
-                    'MIN': np.nan,
-                    'MAX': np.nan,
-                    'COUNT': 0
+                    'MEAN': np.nan, 'STD': np.nan, 'MIN': np.nan, 'MAX': np.nan, 'COUNT': 0
                 })
     
-    # Create DataFrame
     df = pd.DataFrame(results)
     df['Month'] = month_str
     df = df.sort_values('distance')
@@ -174,23 +184,19 @@ def calculate_zonal_statistics(buffers_gdf, lst_raster_path, month_str):
     return df
 
 # ============================================================================
-# BATCH PROCESSING - ALL MONTHS
+# PROCESS ALL 12 MONTHS
 # ============================================================================
 
 def process_all_months(buffers_gdf):
-    """
-    Run zonal statistics for all 12 monthly LST composites.
-    """
+    """Run zonal statistics for all 12 monthly LST composites."""
     print("\n" + "="*60)
-    print("STEP 2: Calculating Zonal Statistics for All Months")
+    print("STEP 2: Calculating Zonal Statistics for ALL 12 Months")
     print("="*60)
     
     all_results = []
     
     for month in range(1, 13):
         month_str = f"{month:02d}"
-        
-        # Input LST raster (from GEE export)
         lst_raster = os.path.join(RAW_TIF_DIR, f"Tianjin_Monthly_Median_{month_str}.tif")
         
         if not os.path.exists(lst_raster):
@@ -198,20 +204,19 @@ def process_all_months(buffers_gdf):
             continue
         
         print(f"\n{'─'*40}")
-        print(f"Processing Month {month_str}")
+        print(f"Processing {MONTH_NAMES[month_str]} ({month_str})")
         print(f"{'─'*40}")
         
-        # Calculate zonal statistics
         df = calculate_zonal_statistics(buffers_gdf, lst_raster, month_str)
         
-        # Export to Excel
+        # Export individual month Excel
         excel_output = os.path.join(STATS_OUTPUT, f"Gradient_Month_{month_str}.xlsx")
         df.to_excel(excel_output, index=False)
         print(f"    ✓ Excel saved: {excel_output}")
         
         all_results.append(df)
     
-    # Combine all months into one master file
+    # Combine all months
     if all_results:
         combined_df = pd.concat(all_results, ignore_index=True)
         master_excel = os.path.join(STATS_OUTPUT, "All_Months_Gradient.xlsx")
@@ -226,11 +231,7 @@ def process_all_months(buffers_gdf):
 # ============================================================================
 
 def analyze_cooling_threshold(df, month_str):
-    """
-    Determine the Threshold Value of Efficiency (TVoE).
-    """
-    print(f"\n  Analyzing cooling threshold for Month {month_str}...")
-    
+    """Determine the Threshold Value of Efficiency (TVoE)."""
     month_data = df[df['Month'] == month_str].copy()
     month_data = month_data.sort_values('distance')
     
@@ -241,24 +242,15 @@ def analyze_cooling_threshold(df, month_str):
     gradient_threshold = 0.005  # °C/m
     threshold_rows = month_data[abs(month_data['temp_gradient']) < gradient_threshold]
     
-    if not threshold_rows.empty:
-        tvoe = threshold_rows.iloc[0]['distance']
-        print(f"    ✓ Cooling Threshold Distance (TVoE): {tvoe} meters")
-    else:
-        tvoe = None
-        print(f"    ⚠ Could not determine TVoE")
+    tvoe = threshold_rows.iloc[0]['distance'] if not threshold_rows.empty else None
     
-    # Calculate cooling intensity
     water_temp = month_data.iloc[0]['MEAN']
     urban_temp = month_data.iloc[-1]['MEAN']
     delta_t = urban_temp - water_temp
     
-    print(f"    ✓ Water Edge Temperature: {water_temp:.2f}°C")
-    print(f"    ✓ Urban Matrix Temperature (1000m): {urban_temp:.2f}°C")
-    print(f"    ✓ Cooling Intensity (ΔT): {delta_t:.2f}°C")
-    
     return {
         'month': month_str,
+        'month_name': MONTH_NAMES.get(month_str, month_str),
         'tvoe': tvoe,
         'water_temp': water_temp,
         'urban_temp': urban_temp,
@@ -266,72 +258,203 @@ def analyze_cooling_threshold(df, month_str):
     }
 
 # ============================================================================
-# VISUALIZATION
+# VISUALIZATION - COOLING GRADIENT WITH EQUATION
 # ============================================================================
 
-def plot_cooling_gradient(df, month_str, output_path):
-    """
-    Create a cooling gradient chart for a specific month.
-    """
+def plot_cooling_gradient_with_equation(df, month_str, output_path):
+    """Create cooling gradient chart WITH regression equation displayed."""
     month_data = df[df['Month'] == month_str].sort_values('distance')
     
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(12, 7))
     
-    # Plot with error bars
-    ax.errorbar(month_data['distance'], month_data['MEAN'], 
-                yerr=month_data['STD'], 
-                fmt='o-', capsize=3, capthick=1,
-                color='#e74c3c', ecolor='gray', 
-                label=f'Month {month_str} Mean LST')
+    x = month_data['distance'].values
+    y = month_data['MEAN'].values
+    yerr = month_data['STD'].values
     
-    # Add trend line
-    z = np.polyfit(month_data['distance'], month_data['MEAN'], 2)
+    # Plot data points with error bars
+    ax.errorbar(x, y, yerr=yerr, fmt='o', capsize=4, capthick=1.5,
+                color='#e74c3c', ecolor='gray', markersize=8,
+                label='Mean LST ± Std Dev')
+    
+    # Fit logarithmic function
+    try:
+        popt_log, _ = curve_fit(logarithmic_func, x, y, p0=[1, 30], maxfev=5000)
+        x_smooth = np.linspace(x.min(), x.max(), 200)
+        y_log = logarithmic_func(x_smooth, *popt_log)
+        
+        # Calculate R²
+        y_pred = logarithmic_func(x, *popt_log)
+        ss_res = np.sum((y - y_pred)**2)
+        ss_tot = np.sum((y - np.mean(y))**2)
+        r2_log = 1 - (ss_res / ss_tot)
+        
+        # Plot fitted curve
+        ax.plot(x_smooth, y_log, '-', color='#3498db', linewidth=2.5,
+                label=f'Logarithmic Fit (R² = {r2_log:.4f})')
+        
+        # Display equation on plot
+        equation_text = f'T = {popt_log[0]:.4f} × ln(d+1) + {popt_log[1]:.2f}'
+        ax.text(0.95, 0.05, f'Fitted Equation:\n{equation_text}\nR² = {r2_log:.4f}',
+                transform=ax.transAxes, fontsize=11, verticalalignment='bottom',
+                horizontalalignment='right',
+                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
+        
+    except Exception as e:
+        print(f"    ⚠ Logarithmic fit failed: {e}")
+    
+    # Calculate cooling metrics
+    delta_t = y[-1] - y[0]
+    
+    ax.set_xlabel('Distance from Haihe River (m)', fontsize=13)
+    ax.set_ylabel('Land Surface Temperature (°C)', fontsize=13)
+    ax.set_title(f'Urban Cooling Island Effect - {MONTH_NAMES[month_str]}\n'
+                 f'Tianjin Haihe River | ΔT = {delta_t:.2f}°C', fontsize=14, fontweight='bold')
+    ax.legend(loc='upper left', fontsize=10)
+    ax.grid(True, alpha=0.3, linestyle='--')
+    ax.set_xlim(0, x.max() * 1.05)
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    print(f"    ✓ Gradient chart saved: {output_path}")
+    return popt_log if 'popt_log' in dir() else None
+
+# ============================================================================
+# VISUALIZATION - SCATTER PLOT WITH EQUATION
+# ============================================================================
+
+def plot_scatter_with_equation(df, month_str, output_path):
+    """Create scatter plot with polynomial fit and equation."""
+    month_data = df[df['Month'] == month_str].sort_values('distance')
+    
+    fig, ax = plt.subplots(figsize=(10, 7))
+    
+    x = month_data['distance'].values
+    y = month_data['MEAN'].values
+    
+    # Scatter plot
+    ax.scatter(x, y, s=100, c='#3498db', alpha=0.7, edgecolors='white', linewidth=1.5)
+    
+    # Polynomial fit
+    z = np.polyfit(x, y, 2)
     p = np.poly1d(z)
-    x_smooth = np.linspace(month_data['distance'].min(), month_data['distance'].max(), 100)
-    ax.plot(x_smooth, p(x_smooth), '--', color='#3498db', 
-            label='Polynomial Fit', linewidth=2)
+    x_smooth = np.linspace(x.min(), x.max(), 100)
     
-    ax.set_xlabel('Distance from Haihe River (m)', fontsize=12)
-    ax.set_ylabel('Land Surface Temperature (°C)', fontsize=12)
-    ax.set_title(f'Urban Cooling Island Effect - Month {month_str}\nTianjin Haihe River', fontsize=14)
-    ax.legend()
+    # Calculate R²
+    y_pred = p(x)
+    ss_res = np.sum((y - y_pred)**2)
+    ss_tot = np.sum((y - np.mean(y))**2)
+    r2 = 1 - (ss_res / ss_tot)
+    
+    ax.plot(x_smooth, p(x_smooth), 'r-', linewidth=2.5, 
+            label=f'Polynomial Fit (R² = {r2:.4f})')
+    
+    # Display equation
+    equation_text = f'T = {z[0]:.2e}d² + {z[1]:.4f}d + {z[2]:.2f}'
+    ax.text(0.95, 0.05, f'Fitted Equation:\n{equation_text}\nR² = {r2:.4f}',
+            transform=ax.transAxes, fontsize=11, verticalalignment='bottom',
+            horizontalalignment='right',
+            bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.8))
+    
+    ax.set_xlabel('Distance from Haihe River (m)', fontsize=13)
+    ax.set_ylabel('Land Surface Temperature (°C)', fontsize=13)
+    ax.set_title(f'Distance-Temperature Relationship - {MONTH_NAMES[month_str]}\n'
+                 f'Tianjin Haihe River', fontsize=14, fontweight='bold')
+    ax.legend(loc='upper left')
     ax.grid(True, alpha=0.3)
     
     plt.tight_layout()
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
     
-    print(f"    ✓ Chart saved: {output_path}")
+    print(f"    ✓ Scatter plot saved: {output_path}")
+
+# ============================================================================
+# VISUALIZATION - SEASONAL COMPARISON
+# ============================================================================
 
 def plot_seasonal_comparison(df, output_path):
-    """
-    Create a chart comparing all 12 months.
-    """
-    fig, ax = plt.subplots(figsize=(12, 8))
+    """Create chart comparing all 12 months."""
+    fig, ax = plt.subplots(figsize=(14, 9))
     
-    # Color map for months
-    colors = plt.cm.viridis(np.linspace(0, 1, 12))
+    # Color maps for seasons
+    season_colors = {
+        '12': '#1f77b4', '01': '#2ca02c', '02': '#17becf',  # Winter (blue/green)
+        '03': '#bcbd22', '04': '#98df8a', '05': '#7f7f7f',  # Spring
+        '06': '#ff7f0e', '07': '#d62728', '08': '#e377c2',  # Summer (warm)
+        '09': '#9467bd', '10': '#8c564b', '11': '#aec7e8',  # Fall
+    }
     
-    for i, month in enumerate(range(1, 13)):
+    for month in range(1, 13):
         month_str = f"{month:02d}"
         month_data = df[df['Month'] == month_str].sort_values('distance')
         
         if not month_data.empty:
+            color = season_colors.get(month_str, '#333333')
             ax.plot(month_data['distance'], month_data['MEAN'], 
-                   'o-', color=colors[i], label=f'Month {month_str}', 
-                   alpha=0.7, markersize=4)
+                   'o-', color=color, label=f'{MONTH_NAMES[month_str]}', 
+                   alpha=0.8, markersize=5, linewidth=1.5)
     
-    ax.set_xlabel('Distance from Haihe River (m)', fontsize=12)
-    ax.set_ylabel('Land Surface Temperature (°C)', fontsize=12)
-    ax.set_title('Seasonal Variation of Urban Cooling Island Effect\nTianjin Haihe River (2020-2025)', fontsize=14)
-    ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left', ncol=2)
-    ax.grid(True, alpha=0.3)
+    ax.set_xlabel('Distance from Haihe River (m)', fontsize=13)
+    ax.set_ylabel('Land Surface Temperature (°C)', fontsize=13)
+    ax.set_title('Seasonal Variation of Urban Cooling Island Effect\n'
+                 'Tianjin Haihe River (2020-2025 Monthly Medians)', fontsize=14, fontweight='bold')
+    ax.legend(bbox_to_anchor=(1.02, 1), loc='upper left', ncol=1, fontsize=10)
+    ax.grid(True, alpha=0.3, linestyle='--')
     
     plt.tight_layout()
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
     
     print(f"\n✓ Seasonal comparison chart: {output_path}")
+
+# ============================================================================
+# VISUALIZATION - COOLING INTENSITY SUMMARY
+# ============================================================================
+
+def plot_monthly_cooling_intensity(df, output_path):
+    """Create bar chart of monthly cooling intensity (ΔT)."""
+    fig, ax = plt.subplots(figsize=(12, 6))
+    
+    months = []
+    delta_ts = []
+    
+    for month in range(1, 13):
+        month_str = f"{month:02d}"
+        month_data = df[df['Month'] == month_str].sort_values('distance')
+        
+        if not month_data.empty:
+            water_temp = month_data.iloc[0]['MEAN']
+            urban_temp = month_data.iloc[-1]['MEAN']
+            delta_t = urban_temp - water_temp
+            
+            months.append(MONTH_NAMES[month_str][:3])
+            delta_ts.append(delta_t)
+    
+    colors = ['#3498db' if dt > 0 else '#e74c3c' for dt in delta_ts]
+    bars = ax.bar(months, delta_ts, color=colors, edgecolor='black', linewidth=1)
+    
+    # Add value labels on bars
+    for bar, dt in zip(bars, delta_ts):
+        height = bar.get_height()
+        ax.annotate(f'{dt:.1f}°C',
+                    xy=(bar.get_x() + bar.get_width() / 2, height),
+                    xytext=(0, 3), textcoords="offset points",
+                    ha='center', va='bottom', fontsize=9, fontweight='bold')
+    
+    ax.axhline(y=0, color='black', linestyle='-', linewidth=0.5)
+    ax.set_xlabel('Month', fontsize=12)
+    ax.set_ylabel('Cooling Intensity ΔT (°C)', fontsize=12)
+    ax.set_title('Monthly Cooling Intensity of Haihe River\n'
+                 '(Temperature Difference: Urban 1000m - River Edge)', fontsize=13, fontweight='bold')
+    ax.grid(True, axis='y', alpha=0.3)
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    print(f"✓ Monthly cooling intensity chart: {output_path}")
 
 # ============================================================================
 # MAIN EXECUTION
@@ -341,7 +464,7 @@ def main():
     """Main LST retrieval and buffer analysis workflow."""
     print("\n" + "="*60)
     print("THE BLUE SPINE - LST RETRIEVAL & BUFFER ANALYSIS")
-    print("(Open Source Version)")
+    print("Using YOUR Haihe_River.shp boundary")
     print("="*60)
     
     # Setup
@@ -351,49 +474,63 @@ def main():
     if not os.path.exists(HAIHE_RIVER):
         print(f"\nERROR: Haihe River shapefile not found at:")
         print(f"  {HAIHE_RIVER}")
-        print("\nPlease ensure you have the river boundary file.")
         return
     
-    # Step 1: Create multi-ring buffers
-    buffers_gdf, buffer_shp = create_multi_ring_buffer(HAIHE_RIVER, BUFFER_DISTANCES)
+    print(f"\n✓ Using your river boundary: {HAIHE_RIVER}")
     
-    # Step 2: Process all months
+    # Step 1: Create multi-ring buffers from YOUR shapefile
+    buffers_gdf, river_geom = create_multi_ring_buffer(HAIHE_RIVER, BUFFER_DISTANCES)
+    
+    # Step 2: Process all 12 months
     combined_df = process_all_months(buffers_gdf)
     
     if combined_df is None:
         print("ERROR: No data processed.")
         return
     
-    # Step 3: Analyze cooling threshold for July
+    # Step 3: Generate visualizations for ALL months
     print("\n" + "="*60)
-    print("STEP 3: Cooling Threshold Analysis")
+    print("STEP 3: Generating Visualizations for ALL Months")
     print("="*60)
     
-    threshold_results = analyze_cooling_threshold(combined_df, "07")
-    
-    # Step 4: Generate visualizations
-    print("\n" + "="*60)
-    print("STEP 4: Generating Visualizations")
-    print("="*60)
-    
-    # July gradient chart
-    july_chart = os.path.join(MAPS_DIR, "Cooling_Gradient_July.png")
-    plot_cooling_gradient(combined_df, "07", july_chart)
+    for month in range(1, 13):
+        month_str = f"{month:02d}"
+        if month_str in combined_df['Month'].values:
+            print(f"\n  {MONTH_NAMES[month_str]}:")
+            
+            # Cooling gradient chart with equation
+            gradient_path = os.path.join(MAPS_DIR, f"Cooling_Gradient_{month_str}.png")
+            plot_cooling_gradient_with_equation(combined_df, month_str, gradient_path)
+            
+            # Scatter plot with equation
+            scatter_path = os.path.join(MAPS_DIR, f"Scatter_Plot_{month_str}.png")
+            plot_scatter_with_equation(combined_df, month_str, scatter_path)
     
     # Seasonal comparison
-    seasonal_chart = os.path.join(MAPS_DIR, "Seasonal_Comparison.png")
-    plot_seasonal_comparison(combined_df, seasonal_chart)
+    seasonal_path = os.path.join(MAPS_DIR, "Seasonal_Comparison_All.png")
+    plot_seasonal_comparison(combined_df, seasonal_path)
     
-    # Final summary
+    # Monthly cooling intensity bar chart
+    intensity_path = os.path.join(MAPS_DIR, "Monthly_Cooling_Intensity.png")
+    plot_monthly_cooling_intensity(combined_df, intensity_path)
+    
+    # Step 4: Summary statistics
+    print("\n" + "="*60)
+    print("ANALYSIS SUMMARY")
+    print("="*60)
+    
+    print("\nCooling Intensity by Month:")
+    print("-" * 50)
+    for month in range(1, 13):
+        month_str = f"{month:02d}"
+        if month_str in combined_df['Month'].values:
+            result = analyze_cooling_threshold(combined_df, month_str)
+            print(f"  {result['month_name']:12s} | ΔT = {result['delta_t']:+.2f}°C | "
+                  f"TVoE = {result['tvoe']}m")
+    
     print("\n" + "="*60)
     print("LST RETRIEVAL COMPLETE")
     print("="*60)
-    print(f"\nKey Results (July):")
-    print(f"  • Cooling Intensity (ΔT): {threshold_results['delta_t']:.2f}°C")
-    print(f"  • Threshold Distance: {threshold_results['tvoe']} m")
-    print(f"\nOutput Files:")
-    print(f"  • Excel Data: {os.path.join(STATS_OUTPUT, 'All_Months_Gradient.xlsx')}")
-    print(f"  • Charts: {MAPS_DIR}")
 
 
 if __name__ == "__main__":
