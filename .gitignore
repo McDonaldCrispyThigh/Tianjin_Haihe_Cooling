@@ -2,6 +2,9 @@
 # ArcGIS Pro / GIS Data Files (Large files - DO NOT UPLOAD)
 # =============================================================================
 
+# Python Virtual Environment
+Tianjin/
+
 # Raster data (very large)
 *.tif
 *.tiff
