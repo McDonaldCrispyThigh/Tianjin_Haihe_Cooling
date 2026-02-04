@@ -1,3 +1,51 @@
+# =============================================================================
+# ArcGIS Pro / GIS Data Files (Large files - DO NOT UPLOAD)
+# =============================================================================
+
+# Raster data (very large)
+*.tif
+*.tiff
+*.img
+*.ovr
+*.aux.xml
+
+# Geodatabase files
+*.gdb/
+*.mdb
+*.sde
+
+# ArcGIS Project files (contain local paths)
+*.aprx
+*.atbx
+*.tbx
+
+# ArcGIS lock files
+*.lock
+*.sr.lock
+
+# ArcGIS temporary files
+Index/
+ImportLog/
+info/
+.backups/
+GpMessages/
+.ipynb_checkpoints/
+
+# Shapefile components (optional - uncomment if you want to exclude)
+# *.shp
+# *.shx
+# *.dbf
+# *.prj
+# *.sbn
+# *.sbx
+
+# Excel data files (optional - may want to keep small ones)
+# *.xlsx
+
+# =============================================================================
+# Python
+# =============================================================================
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
