@@ -13,17 +13,17 @@ Tianjin, a megacity in Northern China, faces intensifying **Urban Heat Island (U
 
 ## Current Progress (2026-02-04)
 
-### ✅ Completed Phases
+### Completed Phases
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| **Phase 0** | GEE data acquisition (12 monthly composites) | ✅ Complete |
-| **Phase 1** | Preprocessing (band extraction, water masking) | ✅ Complete |
-| **Phase 2** | Buffer analysis & zonal statistics (12 months) | ✅ Complete |
-| **Phase 3** | GWR/Local regression analysis (12 months) | ✅ Complete |
-| **Phase 4** | Visualization & chart generation | ✅ Complete |
+| **Phase 0** | GEE data acquisition (12 monthly composites) | Complete |
+| **Phase 1** | Preprocessing (band extraction, water masking) | Complete |
+| **Phase 2** | Buffer analysis & zonal statistics (12 months) | Complete |
+| **Phase 3** | GWR/Local regression analysis (12 months) | Complete |
+| **Phase 4** | Visualization & chart generation | Complete |
 
-### 📊 Key Outputs Generated
+### Key Outputs Generated
 - 12 monthly LST gradient datasets (`Data/Gradient_Month_XX.xlsx`)
 - 12 monthly GWR sample datasets (`Data/GWR_Samples_XX.csv`, ~27,500 points each)
 - 60+ visualization charts (`Maps/`)
@@ -173,3 +173,4 @@ University of Colorado Boulder
 *Department of Geography & Applied Mathematics*
 **Course:** GEOG 4503: GIS Project Management
 **Research Interests:** Remote Sensing, Spatial Statistics, Urban Resilience, Blue-Green Infrastructure.
+
