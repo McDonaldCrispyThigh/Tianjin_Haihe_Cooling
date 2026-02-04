@@ -7,7 +7,7 @@
 
 Tianjin, a megacity in Northern China, faces intensifying **Urban Heat Island (UHI)** effects due to rapid urbanization and surface sealing. While the Haihe River acts as the city's "Blue Spine," its thermodynamic interaction with the surrounding urban fabric remains dynamic and spatially heterogeneous.
 
-This project moves beyond global statistics to perform a **pixel-level spatiotemporal analysis** using Landsat 8/9 OLI/TIRS imagery. Drawing on methodologies from recent urban climate literature (e.g., *Yang et al., 2015*; *Wang et al., 2023*), this repository implements an automated **Python/ArcPy workflow** to quantify the **Urban Cooling Island (UCI)** intensity, determine the **Threshold Value of Efficiency (TVoE)**, and model the cooling decay gradients using **Geographically Weighted Regression (GWR)**.
+**This project implements a multi-temporal composite analysis using Landsat 8/9 OLI/TIRS imagery.** To mitigate cloud contamination and isolate phenological patterns, the workflow aggregates five years of data (2020–2025) into **12 representative monthly baselines**. This approach allows for a robust quantification of the seasonal fluctuations in **Urban Cooling Island (UCI)** intensity and the **Threshold Value of Efficiency (TVoE)** without the bias of single-date anomalies.
 
 ---
 
@@ -26,9 +26,12 @@ This project integrates remote sensing inversion with spatial statistics.
 
 ### 1. Data Acquisition & Preprocessing
 - **Data Source:** USGS EarthExplorer (Landsat 8/9 Collection 2 Level-2).
-- **Study Period:** Summer Solstice window (June–September), 2020–2025, to capture peak UHI intensity.
+- **Temporal Scope: Multi-year Monthly Compositing (2020–2025).**
+    Instead of a linear time series, images from the same month across five years are aggregated to create a **"Climatological Mean"** (e.g., Representative July = Median of July 2020, 2021... 2025).
+    * *Rationale:* This strategy effectively eliminates cloud cover gaps (a major constraint in Tianjin) and highlights stable seasonal thermodynamic trends rather than transient weather events.
 - **Study Area:** The 6 central districts of Tianjin (Heping, Nankai, Hexi, Hedong, Hebei, Hongqiao).
-- **Preprocessing:** - Automated Cloud Masking using `QA_PIXEL`.
+- **Preprocessing:**
+  - Automated Cloud Masking using `QA_PIXEL`.
   - Geometric Clipping.
   - Radiometric Calibration (DN to Reflectance/Temperature).
 
@@ -83,7 +86,7 @@ Tianjin_Haihe_Cooling/
 
 ## Preliminary Results & Hypotheses
 
-*Based on literature review (e.g., land-12-02126, Meijiang Lake Study):*
+*Based on literature review:*
 
 * **Hypothesis 1:** The cooling effect of the Haihe River is non-linear and follows a logarithmic decay function.
 * **Hypothesis 2:** The "Cooling Threshold Distance" is expected to range between **300m and 600m**, varying significantly by river width and adjacent building height.
