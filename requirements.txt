@@ -18,3 +18,8 @@ matplotlib>=3.7.0
 
 # Excel file support
 openpyxl>=3.1.0
+
+# Spatial statistics (for Script 04)
+libpysal>=4.9.0
+esda>=2.5.0
+splot>=1.1.0

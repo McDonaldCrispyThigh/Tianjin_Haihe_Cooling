@@ -77,6 +77,18 @@ Scripts are designed to batch-process the following indices:
   - **Explanatory Variable:** Euclidean Distance to River ($D_{river}$)
   - **Kernel:** Adaptive Bi-square
 
+### 4. Spatial Autocorrelation Analysis
+Examining whether the cooling effect exhibits spatial clustering patterns:
+- **Global Moran's I:** Tests for overall spatial autocorrelation in LST distribution
+- **Local Moran's I (LISA):** Identifies statistically significant hot spots (HH) and cold spots (LL)
+- **Getis-Ord Gi*:** Locates clusters of high/low temperatures with confidence intervals
+
+### 5. Seasonal Time Series Analysis
+Characterizing the temporal dynamics of the Urban Cooling Island effect:
+- **Sinusoidal Model Fitting:** $\Delta T(t) = A \cdot \sin(2\pi t/12 + \phi) + C$
+- **Coefficient of Variation (CV):** Measures cooling stability across months
+- **Phase Analysis:** Identifies peak cooling months and lag relationships
+
 ---
 
 ## Repository Structure
@@ -88,6 +100,7 @@ Tianjin_Haihe_Cooling/
 │   ├── Processed/                 # Extracted LST/NDWI bands by month
 │   ├── Vector/                    # Shapefiles (Haihe_River, Buffers, etc.)
 │   ├── GWR_Results/               # GWR output shapefiles
+│   ├── Spatial_Stats/             # Moran's I & LISA results
 │   ├── Gradient_Month_XX.xlsx     # Zonal statistics per month
 │   ├── GWR_Samples_XX.csv         # Regression sample points per month
 │   └── All_Months_Gradient.xlsx   # Combined gradient summary
@@ -95,11 +108,14 @@ Tianjin_Haihe_Cooling/
 │   ├── 00 GEE_data_acquisition.js # Google Earth Engine script
 │   ├── 01 preprocessing.py        # Band extraction & water masking
 │   ├── 02 LST retrieval.py        # Buffer analysis & zonal stats
-│   └── 03 GWR analysis.py         # Spatial regression analysis
-├── Maps/                          # Visualization Outputs (60+ charts)
+│   ├── 03 GWR analysis.py         # Spatial regression analysis
+│   ├── 04 spatial_autocorrelation.py  # Moran's I, LISA, Getis-Ord Gi*
+│   └── 05 seasonal_analysis.py    # Time series & seasonal patterns
+├── Maps/                          # Visualization Outputs (80+ charts)
 │   ├── Cooling_Gradient_XX.png    # Distance-LST curves
 │   ├── Local_Regression_XX.png    # GWR coefficient maps
-│   ├── Local_R2_XX.png            # Model fit maps
+│   ├── Spatial_Autocorrelation/   # LISA cluster & hot spot maps
+│   ├── Seasonal_Analysis/         # Seasonal cycle & phase charts
 │   └── Seasonal_Comparison_All.png
 ├── Docs/                          # Documentation
 │   └── OPERATION_GUIDE.md         # Step-by-step workflow guide
