@@ -1,19 +1,25 @@
 """
 =============================================================================
 PROJECT: The Blue Spine - Tianjin Haihe Cooling Analysis
-SCRIPT: 01 Preprocessing
+SCRIPT: 01 Preprocessing (Open Source Version - No ArcPy Required)
 DESCRIPTION: 
     - Validate downloaded GEE monthly composites
     - Extract LST and NDWI bands from multi-band TIFs
     - Create water body binary mask from NDWI
 AUTHOR: Congyuan Zheng
 DATE: 2026-02
+LIBRARIES: rasterio, numpy, geopandas (open source)
 =============================================================================
 """
 
-import arcpy
-from arcpy.sa import *
+import rasterio
+from rasterio.features import shapes
+import numpy as np
+import geopandas as gpd
+from shapely.geometry import shape
 import os
+import warnings
+warnings.filterwarnings('ignore')
 
 # ============================================================================
 # CONFIGURATION - MODIFY THESE PATHS TO MATCH YOUR SYSTEM
@@ -35,23 +41,17 @@ NDWI_THRESHOLD = 0.1
 # ============================================================================
 
 def setup_environment():
-    """Configure ArcPy environment settings."""
-    arcpy.env.workspace = RAW_TIF_DIR
-    arcpy.env.overwriteOutput = True
-    arcpy.env.outputCoordinateSystem = arcpy.SpatialReference(32650)  # UTM Zone 50N
+    """Create output directories if they don't exist."""
+    print("\n" + "="*60)
+    print("Setting up environment...")
+    print("="*60)
     
-    # Check out Spatial Analyst extension
-    if arcpy.CheckExtension("Spatial") == "Available":
-        arcpy.CheckOutExtension("Spatial")
-        print("✓ Spatial Analyst extension checked out successfully.")
-    else:
-        raise RuntimeError("Spatial Analyst extension is not available!")
-    
-    # Create output directories if they don't exist
     for directory in [OUTPUT_DIR, VECTOR_DIR]:
         if not os.path.exists(directory):
             os.makedirs(directory)
             print(f"✓ Created directory: {directory}")
+        else:
+            print(f"✓ Directory exists: {directory}")
 
 # ============================================================================
 # DATA VALIDATION
@@ -75,10 +75,10 @@ def validate_monthly_composites():
         filepath = os.path.join(RAW_TIF_DIR, filename)
         
         if os.path.exists(filepath):
-            # Validate raster properties
-            raster = arcpy.Raster(filepath)
-            band_count = raster.bandCount
-            print(f"  ✓ Month {month_str}: Found ({band_count} bands)")
+            # Validate raster properties using rasterio
+            with rasterio.open(filepath) as src:
+                band_count = src.count
+                print(f"  ✓ Month {month_str}: Found ({band_count} bands, {src.width}x{src.height} pixels)")
             valid_files.append(filepath)
         else:
             print(f"  ✗ Month {month_str}: MISSING")
@@ -110,17 +110,25 @@ def extract_bands(input_tif, month_str):
     if not os.path.exists(month_output):
         os.makedirs(month_output)
     
-    # Extract LST (Band 1)
-    lst_output = os.path.join(month_output, f"LST_{month_str}.tif")
-    arcpy.management.MakeRasterLayer(input_tif, "temp_layer", band_index="1")
-    arcpy.management.CopyRaster("temp_layer", lst_output)
-    print(f"    ✓ LST extracted: {lst_output}")
-    
-    # Extract NDWI (Band 2)
-    ndwi_output = os.path.join(month_output, f"NDWI_{month_str}.tif")
-    arcpy.management.MakeRasterLayer(input_tif, "temp_layer2", band_index="2")
-    arcpy.management.CopyRaster("temp_layer2", ndwi_output)
-    print(f"    ✓ NDWI extracted: {ndwi_output}")
+    # Read the multi-band TIF
+    with rasterio.open(input_tif) as src:
+        # Get metadata for output files
+        meta = src.meta.copy()
+        meta.update(count=1)  # Single band output
+        
+        # Extract LST (Band 1)
+        lst_output = os.path.join(month_output, f"LST_{month_str}.tif")
+        lst_data = src.read(1)
+        with rasterio.open(lst_output, 'w', **meta) as dst:
+            dst.write(lst_data, 1)
+        print(f"    ✓ LST extracted: {lst_output}")
+        
+        # Extract NDWI (Band 2)
+        ndwi_output = os.path.join(month_output, f"NDWI_{month_str}.tif")
+        ndwi_data = src.read(2)
+        with rasterio.open(ndwi_output, 'w', **meta) as dst:
+            dst.write(ndwi_data, 1)
+        print(f"    ✓ NDWI extracted: {ndwi_output}")
     
     return lst_output, ndwi_output
 
@@ -139,10 +147,18 @@ def extract_water_body(ndwi_raster, month_str, threshold=NDWI_THRESHOLD):
     month_output = os.path.join(OUTPUT_DIR, f"Month_{month_str}")
     water_binary_output = os.path.join(month_output, f"Water_Binary_{month_str}.tif")
     
-    # Apply conditional statement
-    ndwi = Raster(ndwi_raster)
-    water_binary = Con(ndwi > threshold, 1, 0)
-    water_binary.save(water_binary_output)
+    # Read NDWI and apply threshold
+    with rasterio.open(ndwi_raster) as src:
+        ndwi_data = src.read(1)
+        meta = src.meta.copy()
+        meta.update(dtype=rasterio.uint8)  # Binary output
+        
+        # Apply conditional: NDWI > threshold = 1, else = 0
+        water_binary = np.where(ndwi_data > threshold, 1, 0).astype(np.uint8)
+        
+        # Save binary water mask
+        with rasterio.open(water_binary_output, 'w', **meta) as dst:
+            dst.write(water_binary, 1)
     
     print(f"    ✓ Water binary saved: {water_binary_output}")
     return water_binary_output
@@ -155,20 +171,31 @@ def water_raster_to_polygon(water_binary_raster, month_str):
     
     output_shp = os.path.join(VECTOR_DIR, f"Water_Polygon_{month_str}.shp")
     
-    # Raster to Polygon conversion
-    arcpy.conversion.RasterToPolygon(
-        in_raster=water_binary_raster,
-        out_polygon_features=output_shp,
-        simplify="SIMPLIFY",
-        raster_field="Value"
-    )
+    # Read raster and convert to polygons
+    with rasterio.open(water_binary_raster) as src:
+        image = src.read(1)
+        transform = src.transform
+        crs = src.crs
+        
+        # Extract shapes (vectorize)
+        results = (
+            {'properties': {'gridcode': v}, 'geometry': s}
+            for i, (s, v) in enumerate(shapes(image, transform=transform))
+            if v == 1  # Only keep water pixels (value = 1)
+        )
+        
+        # Convert to GeoDataFrame
+        geoms = list(results)
+        if geoms:
+            gdf = gpd.GeoDataFrame.from_features(geoms, crs=crs)
+            gdf.to_file(output_shp)
+            print(f"    ✓ Water polygon saved: {output_shp}")
+            print(f"    ✓ Total water features: {len(gdf)}")
+        else:
+            print(f"    ⚠ No water features found!")
+            return None
     
-    # Select only water pixels (gridcode = 1)
-    water_only_shp = os.path.join(VECTOR_DIR, f"Water_Only_{month_str}.shp")
-    arcpy.analysis.Select(output_shp, water_only_shp, "gridcode = 1")
-    
-    print(f"    ✓ Water polygon saved: {water_only_shp}")
-    return water_only_shp
+    return output_shp
 
 # ============================================================================
 # MAIN EXECUTION
@@ -177,7 +204,7 @@ def water_raster_to_polygon(water_binary_raster, month_str):
 def main():
     """Main preprocessing workflow."""
     print("\n" + "="*60)
-    print("THE BLUE SPINE - PREPROCESSING MODULE")
+    print("THE BLUE SPINE - PREPROCESSING MODULE (Open Source)")
     print("="*60)
     
     # Setup environment
@@ -234,9 +261,6 @@ def main():
     print("="*60)
     print(f"Processed {len(results)} monthly composites")
     print(f"Output directory: {OUTPUT_DIR}")
-    
-    # Check in extension
-    arcpy.CheckInExtension("Spatial")
     
     return results
 
