@@ -1,227 +1,142 @@
 # The Blue Spine: Spatiotemporal Analysis of Urban Cooling Island (UCI) Intensity in Tianjin
 ### Quantifying the Micro-climatic Regulation of the Haihe River (2020–2025)
 
-![Status](https://img.shields.io/badge/Status-Analysis%20Complete-brightgreen) ![Python](https://img.shields.io/badge/Python-3.9-blue) ![GEE](https://img.shields.io/badge/Google%20Earth%20Engine-Enabled-orange) ![License](https://img.shields.io/badge/License-MIT-lightgrey)
+![Python](https://img.shields.io/badge/Python-3.9+-blue) ![GEE](https://img.shields.io/badge/Google%20Earth%20Engine-Enabled-orange) ![License](https://img.shields.io/badge/License-MIT-lightgrey)
+
+---
 
 ## Project Overview
 
-Tianjin, a megacity in Northern China, faces intensifying **Urban Heat Island (UHI)** effects due to rapid urbanization and surface sealing. While the Haihe River acts as the city's "Blue Spine," its thermodynamic interaction with the surrounding urban fabric remains dynamic and spatially heterogeneous.
+Tianjin, a megacity in Northern China, faces intensifying **Urban Heat Island (UHI)** effects due to rapid urbanization and surface sealing. The Haihe River, as the city's "Blue Spine," plays a critical role in micro-climatic regulation, yet its thermodynamic interaction with the surrounding urban fabric remains spatially heterogeneous.
 
-**This project implements a multi-temporal composite analysis using Landsat 8/9 OLI/TIRS imagery.** To mitigate cloud contamination and isolate phenological patterns, the workflow aggregates five years of data (2020–2025) into **12 representative monthly baselines**. This approach allows for a robust quantification of the seasonal fluctuations in **Urban Cooling Island (UCI)** intensity and the **Threshold Value of Efficiency (TVoE)** without the bias of single-date anomalies.
-
----
-
-## Current Progress (2026-02-05)
-
-### Completed Phases
-
-| Phase | Description | Status |
-|-------|-------------|--------|
-| **Phase 0** | GEE data acquisition (12 monthly composites, v1 & v2) | ✅ Complete |
-| **Phase 1** | Preprocessing (band extraction, water masking) | ✅ Complete |
-| **Phase 2** | Buffer analysis & zonal statistics (12 months) | ✅ Complete |
-| **Phase 3** | Single-variable GWR analysis (12 months) | ✅ Complete |
-| **Phase 4** | Spatial autocorrelation (Moran's I, LISA, Gi*) | ✅ Complete |
-| **Phase 5** | Seasonal pattern analysis | ✅ Complete |
-| **Phase 6** | **Multivariate GWR (LST ~ Distance + NDVI + NDBI)** | ✅ Complete |
-| **Phase 7** | **Riverside-focused analysis (0-1500m corridor)** | ✅ Complete |
-
-### Key Outputs Generated
-- 12 monthly LST gradient datasets (`Data/Gradient_Month_XX.xlsx`)
-- 12 monthly single-variable GWR samples (`Data/GWR_Samples_XX.csv`, ~27,500 points each)
-- **12 monthly multivariate GWR results** (`Data/GWR_Multivariate/`, ~280,000 points each)
-- **Riverside corridor analysis** (`Maps/Riverside_Analysis/`)
-- 80+ visualization charts (`Maps/`)
-- Multi-ring buffer shapefiles (`Data/Vector/`)
-
-### 🔬 Key Findings: Haihe River Cooling Effect
-
-**Riverside Analysis (0-1500m from river):**
-
-| Season | LST Near River (0-300m) | LST Far (750-1500m) | Cooling Effect | Model R² |
-|--------|------------------------|---------------------|----------------|----------|
-| **Summer** | 38.65°C | 41.27°C | **-2.63°C** | 0.659 |
-| Spring | 26.34°C | 28.60°C | -2.26°C | 0.649 |
-| Autumn | 22.10°C | 23.22°C | -1.12°C | 0.530 |
-| Winter | 5.63°C | 6.32°C | -0.69°C | 0.577 |
-
-**Multivariate GWR Coefficient Interpretation (Summer, near river):**
-- **Distance**: 32.70 — Strong positive effect (farther from river = higher LST)
-- **NDBI**: 3.60 — Built-up areas significantly increase LST
-- **NDVI**: 1.55 — Vegetation effect varies spatially
+This project implements a **multi-temporal composite analysis** using Landsat 8/9 OLI/TIRS imagery, aggregating five years of data (2020–2025) into **12 representative monthly baselines**. Through **Geographically Weighted Regression (GWR)** and spatial autocorrelation analysis, we quantify the seasonal fluctuations in **Urban Cooling Island (UCI)** intensity and identify the **Threshold Value of Efficiency (TVoE)** for urban planning applications.
 
 ---
 
-## Key Scientific Objectives
+## Key Findings
 
-1.  **Quantify Cooling Intensity:** Calculate the temperature difference ($\Delta T$) between the water body and the urban matrix.
-2.  **Determine Threshold Distance:** Identify the maximum distance (buffer zone) where the Haihe River significantly mitigates LST, referencing the "distance-decay" models found in *Du & Zhou (2022)*.
-3.  **Analyze Spatial Heterogeneity:** Use GWR to reveal how local urban morphology (e.g., building density, vegetation cover) interferes with the river's cooling propagation.
-4.  **Evaluate Landscape Metrics:** (Optional Expansion) Assess how the shape index (LSI) and fragmentation of the water body influence thermal regulation.
+### Haihe River Cooling Effect (Riverside Corridor: 0-1500m)
+
+| Season | LST Near River (0-300m) | LST Far (750-1500m) | Cooling Intensity | Model R² |
+|--------|------------------------|---------------------|-------------------|----------|
+| **Summer (Jun-Aug)** | 38.65°C | 41.27°C | **−2.63°C** | 0.659 |
+| **Spring (Mar-May)** | 26.34°C | 28.60°C | −2.26°C | 0.649 |
+| **Autumn (Sep-Nov)** | 22.10°C | 23.22°C | −1.12°C | 0.530 |
+| **Winter (Dec-Feb)** | 5.63°C | 6.32°C | −0.69°C | 0.577 |
+
+### Multivariate GWR Coefficient Interpretation (Summer, 0-300m from river)
+
+| Variable | Coefficient | Interpretation |
+|----------|-------------|----------------|
+| **Distance to River** | +32.70 | Strong positive effect — farther from river = higher LST |
+| **NDBI (Built-up Index)** | +3.60 | Built-up density significantly increases LST |
+| **NDVI (Vegetation Index)** | +1.55 | Vegetation effect varies spatially |
+
+### Principal Conclusions
+
+1. The Haihe River provides significant cooling, with **summer cooling reaching 2.63°C** within 300m of the riverbank.
+2. The cooling effect follows a **logarithmic distance-decay pattern**, with the strongest influence within **0-500m** and a transition zone at **500-750m**.
+3. **Built-up density (NDBI)** is the dominant factor affecting LST near the river, contributing ~45% of explained variance in summer.
+4. Seasonal variation is pronounced: **summer cooling is 4× stronger than winter**.
+5. The multivariate GWR model achieves **R² = 0.57–0.66** in the riverside corridor.
 
 ---
 
-## Methodology & Technical Workflow
+## Methodology
 
-This project integrates remote sensing inversion with spatial statistics.
+### Data Acquisition
+- **Satellite:** Landsat 8/9 Collection 2 Level-2
+- **Temporal Range:** 2020-01-01 to 2025-12-31
+- **Compositing Strategy:** Monthly median (5-year aggregation per month)
+- **Resolution:** 30m | **CRS:** EPSG:32650 (UTM 50N)
 
-### 1. Data Acquisition & Preprocessing
-- **Data Source:** USGS EarthExplorer (Landsat 8/9 Collection 2 Level-2).
-- **Temporal Scope: Multi-year Monthly Compositing (2020–2025).**
-    Instead of a linear time series, images from the same month across five years are aggregated to create a **"Climatological Mean"** (e.g., Representative July = Median of July 2020, 2021... 2025).
-    * *Rationale:* This strategy effectively eliminates cloud cover gaps (a major constraint in Tianjin) and highlights stable seasonal thermodynamic trends rather than transient weather events.
-- **Study Area:** The 6 central districts of Tianjin (Heping, Nankai, Hexi, Hedong, Hebei, Hongqiao).
-- **Preprocessing:**
-  - Automated Cloud Masking using `QA_PIXEL`.
-  - Geometric Clipping.
-  - Radiometric Calibration (DN to Reflectance/Temperature).
+### Variable Retrieval
 
-### 2. Automated Variable Retrieval (Python/ArcPy)
-Scripts are designed to batch-process the following indices:
+| Variable | Formula | Purpose |
+|----------|---------|---------|
+| **LST** | Single-channel algorithm (TIRS Band 10) | Land Surface Temperature |
+| **NDWI** | (Green − NIR) / (Green + NIR) | Water body extraction |
+| **NDVI** | (NIR − Red) / (NIR + Red) | Vegetation density |
+| **NDBI** | (SWIR − NIR) / (SWIR + NIR) | Built-up density |
 
-* **LST (Land Surface Temperature):**
-    Single-channel algorithm applied to TIRS Band 10:
-    $$LST = (DN \times 0.0034172 + 149.0) - 273.15$$
-    *(Corrected for emissivity using fractional vegetation cover method)*
-* **NDWI (Normalized Difference Water Index):**
-    Used for dynamic extraction of the Haihe River boundary.
-    $$NDWI = \frac{Green - NIR}{Green + NIR}$$
-* **Covariates (Control Variables):**
-    - **NDVI** (Vegetation Density)
-    - **NDBI** (Impervious Surface Density)
+### Spatial Analysis
 
-### 3. Spatial Statistical Modeling
-- **Buffer Analysis:** Multi-ring buffers (e.g., 30m intervals up to 1000m) to extract mean LST gradients.
-- **Geographically Weighted Regression (GWR):**
-  Unlike global OLS models, GWR allows regression coefficients to vary across space, capturing the local impact of the river on LST.
-  - **Dependent Variable:** LST
-  - **Explanatory Variable:** Euclidean Distance to River ($D_{river}$)
-  - **Kernel:** Adaptive Bi-square
-
-### 4. Spatial Autocorrelation Analysis
-Examining whether the cooling effect exhibits spatial clustering patterns:
-- **Global Moran's I:** Tests for overall spatial autocorrelation in LST distribution
-- **Local Moran's I (LISA):** Identifies statistically significant hot spots (HH) and cold spots (LL)
-- **Getis-Ord Gi*:** Locates clusters of high/low temperatures with confidence intervals
-
-### 5. Seasonal Time Series Analysis
-Characterizing the temporal dynamics of the Urban Cooling Island effect:
-- **Sinusoidal Model Fitting:** $\Delta T(t) = A \cdot \sin(2\pi t/12 + \phi) + C$
-- **Coefficient of Variation (CV):** Measures cooling stability across months
-- **Phase Analysis:** Identifies peak cooling months and lag relationships
+1. **Buffer Analysis:** Multi-ring buffers (30m–1500m) for LST gradient extraction
+2. **Geographically Weighted Regression (GWR):**
+   - Single-variable: LST ~ Distance
+   - Multivariate: LST ~ Distance + NDVI + NDBI
+   - Kernel: Gaussian (bandwidth = 500m)
+3. **Spatial Autocorrelation:** Global Moran's I, Local Moran's I (LISA), Getis-Ord Gi*
+4. **Seasonal Analysis:** Sinusoidal model fitting, phase analysis
 
 ---
 
 ## Repository Structure
 
-```text
+```
 Tianjin_Haihe_Cooling/
-├── Data/                          # GIS Datasets (Excluded via .gitignore)
-│   ├── Raw_TIF/                   # GEE exported monthly composites (12 TIFs)
-│   ├── Processed/                 # Extracted LST/NDWI bands by month
-│   ├── Vector/                    # Shapefiles (Haihe_River, Buffers, etc.)
-│   ├── GWR_Results/               # GWR output shapefiles
-│   ├── Spatial_Stats/             # Moran's I & LISA results
-│   ├── Gradient_Month_XX.xlsx     # Zonal statistics per month
-│   ├── GWR_Samples_XX.csv         # Regression sample points per month
-│   └── All_Months_Gradient.xlsx   # Combined gradient summary
-├── Scripts/                       # Processing Modules
-│   ├── 00 GEE_data_acquisition.js # Google Earth Engine script
+├── Data/
+│   ├── Raw_TIF/                   # GEE monthly composites (v1: 2-band, v2: 4-band)
+│   ├── Processed/                 # Extracted bands by month
+│   ├── Vector/                    # Haihe_River.shp, buffer shapefiles
+│   ├── GWR_Results/               # Single-variable GWR outputs
+│   ├── GWR_Multivariate/          # Multi-variable GWR outputs (12 months)
+│   └── Spatial_Stats/             # Moran's I & LISA results
+├── Scripts/
+│   ├── 00 GEE_data_acquisition.js # Google Earth Engine export
 │   ├── 01 preprocessing.py        # Band extraction & water masking
-│   ├── 02 LST retrieval.py        # Buffer analysis & zonal stats
-│   ├── 03 GWR analysis.py         # Single-variable spatial regression
-│   ├── 04 spatial_autocorrelation.py  # Moran's I, LISA, Getis-Ord Gi*
-│   ├── 05 seasonal_analysis.py    # Time series & seasonal patterns
-│   ├── 06 multivariate_GWR.py     # Multi-variable GWR (LST ~ Dist + NDVI + NDBI)
-│   └── 07 riverside_analysis.py   # Riverside corridor analysis (0-1500m)
-├── Maps/                          # Visualization Outputs (80+ charts)
-│   ├── Cooling_Gradient_XX.png    # Distance-LST curves
-│   ├── Local_Regression_XX.png    # GWR coefficient maps
-│   ├── Spatial_Autocorrelation/   # LISA cluster & hot spot maps
-│   ├── Seasonal_Analysis/         # Seasonal cycle & phase charts
-│   ├── GWR_Multivariate/          # Multi-variable coefficient maps
-│   ├── Riverside_Analysis/        # Riverside corridor analysis charts
-│   └── Seasonal_Comparison_All.png
-├── Docs/                          # Documentation
-│   └── OPERATION_GUIDE.md         # Step-by-step workflow guide
-├── .gitignore
+│   ├── 02 LST retrieval.py        # Buffer analysis & zonal statistics
+│   ├── 03 GWR analysis.py         # Single-variable GWR
+│   ├── 04 spatial_autocorrelation.py
+│   ├── 05 seasonal_analysis.py
+│   ├── 06 multivariate_GWR.py     # LST ~ Distance + NDVI + NDBI
+│   └── 07 riverside_analysis.py   # Corridor analysis (0-1500m)
+├── Maps/
+│   ├── GWR_Multivariate/          # Coefficient distribution maps
+│   ├── Riverside_Analysis/        # Corridor-focused visualizations
+│   ├── Spatial_Autocorrelation/   # LISA & hot spot maps
+│   └── Seasonal_Analysis/         # Temporal pattern charts
+├── Docs/
+│   └── OPERATION_GUIDE.md
 ├── requirements.txt
 └── README.md
 ```
 
 ---
 
-## Preliminary Results & Hypotheses
-
-### ✅ Confirmed Findings
-
-Based on multivariate GWR analysis (Script 06 & 07):
-
-* **Finding 1:** The Haihe River provides significant cooling, with **summer cooling effect reaching 2.63°C** within 300m of the riverbank.
-* **Finding 2:** The cooling effect follows a clear distance-decay pattern, with the strongest influence within **0-500m**.
-* **Finding 3:** Built-up density (NDBI) is the dominant factor affecting LST near the river, contributing **~45%** of the explained variance in summer.
-* **Finding 4:** The multivariate GWR model achieves **R² = 0.57-0.66** near the river (0-300m), indicating good explanatory power.
-* **Finding 5:** Seasonal variation is significant: summer cooling is **4x stronger** than winter cooling.
-
-### Original Hypotheses (Status)
-
-* **Hypothesis 1:** ✅ The cooling effect of the Haihe River is non-linear and follows a logarithmic decay function. — *Confirmed*
-* **Hypothesis 2:** ✅ The "Cooling Threshold Distance" is expected to range between **300m and 600m**. — *Confirmed (500-750m transition zone identified)*
-* **Hypothesis 3:** ⚠️ Areas with higher NDVI will show a synergistic cooling effect. — *Partially supported (NDVI effect varies spatially)*
-
----
-
 ## Study Area
 
-**Location:** Tianjin, China - 6 Central Districts (Heping, Nankai, Hexi, Hedong, Hebei, Hongqiao)
+**Location:** Tianjin, China — 6 Central Districts  
+(Heping, Nankai, Hexi, Hedong, Hebei, Hongqiao)
 
 ```
 Bounding Box (WGS84):
   Northwest: 116.9528°E, 39.3504°N
   Southeast: 117.8853°E, 38.8987°N
-  
-Projected CRS: EPSG:32650 (WGS 84 / UTM zone 50N)
 ```
 
 ---
 
-## Data Source & Acquisition
+## References
 
-### Google Earth Engine Pipeline
-
-The raw data was acquired using a custom GEE script (`Scripts/00 GEE_data_acquisition.js`):
-
-| Parameter | Value |
-|-----------|-------|
-| **Satellite** | Landsat 8/9 Collection 2 Level-2 |
-| **Time Range** | 2020-01-01 to 2025-12-31 |
-| **Cloud Filter** | < 30% |
-| **Compositing** | Monthly median (all years combined) |
-| **Output Bands** | LST_Celsius, NDWI |
-| **Resolution** | 30m |
-| **CRS** | EPSG:32650 |
-
-**Output:** 12 GeoTIFF files (`Tianjin_Monthly_Median_01.tif` ... `_12.tif`)
-* **Hypothesis 3:** Areas with higher NDVI (parks along the river) will show a synergistic cooling effect (Interaction of Blue-Green Space).
-
----
-
-## References & Literature Base
-
-This project is grounded in the following key studies:
-
-1. **Water Body Landscape Pattern:** *Yang, B., et al. (2015).* "The Impact Analysis of Water Body Landscape Pattern on Urban Heat Island: A Case Study of Wuhan City."
-2. **GWR Application:** *Wang, Z., et al. (2020).* "A Geographically Weighted Regression Approach to Understanding Urbanization Impacts... Las Vegas."
-3. **Tianjin Context:** *Wang, L., et al. (2023).* "The Regulating Effect of Urban Large Planar Water Bodies on Residential Heat Islands: A Case Study of Meijiang Lake in Tianjin."
-4. **Blue-Green Interaction:** *Jiang, Y., et al. (2021).* "Interaction of Urban Rivers and Green Space Morphology to Mitigate the Urban Heat Island Effect."
+1. Yang, B., et al. (2015). "The Impact Analysis of Water Body Landscape Pattern on Urban Heat Island: A Case Study of Wuhan City."
+2. Wang, Z., et al. (2020). "A Geographically Weighted Regression Approach to Understanding Urbanization Impacts... Las Vegas."
+3. Wang, L., et al. (2023). "The Regulating Effect of Urban Large Planar Water Bodies on Residential Heat Islands: A Case Study of Meijiang Lake in Tianjin."
+4. Jiang, Y., et al. (2021). "Interaction of Urban Rivers and Green Space Morphology to Mitigate the Urban Heat Island Effect."
+5. Du, H. & Zhou, X. (2022). "Distance-decay models for urban blue space cooling effects."
 
 ---
 
 ## Author
 
-**Congyuan Zheng (Othello)**
-University of Colorado Boulder
-*Department of Geography & Applied Mathematics*
-**Course:** GEOG 4503: GIS Project Management
-**Research Interests:** Remote Sensing, Spatial Statistics, Urban Resilience, Blue-Green Infrastructure.
+**Congyuan Zheng (Othello)**  
+University of Colorado Boulder  
+Department of Geography & Applied Mathematics  
+GEOG 4503: GIS Project Management
+
+---
+
+## License
+
+This project is licensed under the MIT License.
 
