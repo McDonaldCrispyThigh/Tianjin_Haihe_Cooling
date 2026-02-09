@@ -24,6 +24,19 @@ This project implements a **multi-temporal composite analysis** using Landsat 8/
 | **Autumn (Sep-Nov)** | 22.10°C | 23.22°C | −1.12°C | 0.530 |
 | **Winter (Dec-Feb)** | 5.63°C | 6.32°C | −0.69°C | 0.577 |
 
+### Seasonal Time-Series Analysis (Buffer: 0-1500m)
+
+| Season | Mean ΔT (°C) | Mean TVoE (m) | Peak Month | R² Range |
+|--------|-------------|---------------|------------|----------|
+| **Summer** | 2.57 ± 0.32 | 867 ± 58 | July (2.90°C) | 0.45–0.61 |
+| **Spring** | 2.19 ± 0.01 | 633 ± 208 | March (2.20°C) | 0.38–0.38 |
+| **Autumn** | 1.07 ± 0.84 | 867 ± 58 | September (1.94°C) | 0.42–0.64 |
+| **Winter** | 0.63 ± 0.36 | 450 ± 390 | February (1.04°C) | 0.16–0.34 |
+
+- **Sinusoidal Model:** ΔT(t) = 1.16·sin(2πt/12 + φ) + 1.80, R² = 0.905
+- **Annual Mean ΔT:** 1.62 ± 0.92°C
+- **Coefficient of Variation:** 57.1% — pronounced seasonal fluctuation
+
 ### Multivariate GWR Coefficient Interpretation (Summer, 0-300m from river)
 
 | Variable | Coefficient | Interpretation |
@@ -34,11 +47,11 @@ This project implements a **multi-temporal composite analysis** using Landsat 8/
 
 ### Principal Conclusions
 
-1. The Haihe River provides significant cooling, with **summer cooling reaching 2.63°C** within 300m of the riverbank.
-2. The cooling effect follows a **logarithmic distance-decay pattern**, with the strongest influence within **0-500m** and a transition zone at **500-750m**.
+1. The Haihe River provides significant cooling, with **summer cooling reaching 2.63°C** within 300m of the riverbank (GWR corridor analysis). Buffer-based analysis confirms this, yielding a summer mean ΔT of **2.57°C** — strong cross-validation between methods.
+2. The cooling effect follows a **logarithmic distance-decay pattern**, with the strongest influence within **0-500m** and a transition zone at **500-750m**. Summer TVoE extends to **867m** on average, while winter TVoE shrinks to **450m**.
 3. **Built-up density (NDBI)** is the strongest positive driver of LST near the river, with a mean coefficient of +3.60 in summer — higher than Distance (+32.70 in standardized units) and NDVI (+1.55).
-4. Seasonal variation is pronounced: **summer cooling is ~3.8× stronger than winter** (2.63°C vs 0.69°C).
-5. The multivariate GWR model achieves **R² = 0.53–0.66** in the riverside corridor.
+4. Seasonal variation is pronounced: **summer cooling is ~3.8× stronger than winter** (GWR: 2.63°C vs 0.69°C; buffer: 2.57°C vs 0.63°C). A sinusoidal model captures **90.5%** of the seasonal variance, peaking in June–July.
+5. The multivariate GWR model achieves **R² = 0.53–0.66** in the riverside corridor. Buffer-based regression R² ranges from **0.16 (winter)** to **0.64 (autumn)**.
 
 ---
 
