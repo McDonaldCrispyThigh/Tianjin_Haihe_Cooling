@@ -26,7 +26,9 @@ warnings.filterwarnings('ignore')
 
 # Import shared configuration
 from config import (DATA_DIR, MAPS_SEASONAL, MONTH_ABBR as MONTH_NAMES,
-                    MONTH_FULL, SEASONS, SEASON_COLORS, ensure_dirs)
+                    MONTH_FULL, SEASONS, SEASON_COLORS,
+                    NEAR_DISTANCE_MAX, FAR_DISTANCE_MIN,
+                    MAX_CORRIDOR_DISTANCE, ensure_dirs)
 
 # ============================================================================
 # CONFIGURATION
@@ -92,11 +94,11 @@ def calculate_monthly_metrics(df):
         # Sort by distance
         month_data = month_data.sort_values('distance')
         
-        # Get LST at different distances
-        lst_near = month_data[month_data['distance'] <= 60]['MEAN'].mean()  # Near river
-        lst_far = month_data[month_data['distance'] >= 800]['MEAN'].mean()  # Far from river
-        lst_mid = month_data[(month_data['distance'] >= 200) & 
-                             (month_data['distance'] <= 400)]['MEAN'].mean()  # Mid-range
+        # Get LST at different distances (unified with Script 07 riverside scale)
+        lst_near = month_data[month_data['distance'] <= NEAR_DISTANCE_MAX]['MEAN'].mean()  # Near river (0-300m)
+        lst_far = month_data[month_data['distance'] >= FAR_DISTANCE_MIN]['MEAN'].mean()  # Far from river (750-1500m)
+        lst_mid = month_data[(month_data['distance'] >= 300) & 
+                             (month_data['distance'] <= 750)]['MEAN'].mean()  # Mid-range
         
         # Cooling intensity (ΔT): difference between far and near
         delta_t = lst_far - lst_near
@@ -448,9 +450,9 @@ def plot_phase_analysis(metrics_df):
     # Plot 1: LST (Near and Far)
     ax1 = axes[0]
     ax1.plot(months, metrics_df['LST_Near'], 'b-o', linewidth=2, 
-             markersize=8, label='LST Near River (0-60m)')
+             markersize=8, label=f'LST Near River (0-{NEAR_DISTANCE_MAX}m)')
     ax1.plot(months, metrics_df['LST_Far'], 'r-o', linewidth=2, 
-             markersize=8, label='LST Far from River (>800m)')
+             markersize=8, label=f'LST Far from River (>{FAR_DISTANCE_MIN}m)')
     ax1.fill_between(months, metrics_df['LST_Near'], metrics_df['LST_Far'], 
                       alpha=0.3, color='gray', label='Cooling Effect')
     ax1.set_ylabel('LST (°C)', fontsize=12)

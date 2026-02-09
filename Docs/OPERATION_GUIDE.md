@@ -126,7 +126,7 @@ Data/Vector/                -> Water_Polygon_07.shp (July reference)
 ### Script: `Scripts/02 LST retrieval.py`
 
 ### Features
-- Create multi-ring buffers (30m-1000m) centered on `Haihe_River.shp`
+- Create multi-ring buffers (30m-1500m) centered on `Haihe_River.shp`
 - Calculate mean LST per ring -> extract cooling gradient
 - Determine TVoE (Threshold of Vanishing Effect)
 

@@ -61,7 +61,7 @@ This project implements a **multi-temporal composite analysis** using Landsat 8/
 
 ### Spatial Analysis
 
-1. **Buffer Analysis:** Multi-ring buffers (30m–1000m) for LST gradient extraction
+1. **Buffer Analysis:** Multi-ring buffers (30m–1500m) for LST gradient extraction
 2. **Geographically Weighted Regression (GWR):**
    - Single-variable: LST ~ Distance
    - Multivariate: LST ~ Distance + NDVI + NDBI

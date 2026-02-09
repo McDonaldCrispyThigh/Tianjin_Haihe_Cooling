@@ -77,9 +77,13 @@ SEASON_COLORS = {
 # ANALYSIS PARAMETERS
 # ============================================================================
 
-# Buffer analysis (Script 02)
+# Buffer / corridor analysis (unified scale matching Script 07 riverside)
 BUFFER_DISTANCES = [30, 60, 90, 120, 150, 180, 210, 240, 270, 300,
-                    350, 400, 450, 500, 600, 700, 800, 900, 1000]
+                    350, 400, 450, 500, 600, 700, 800, 900, 1000,
+                    1100, 1200, 1300, 1400, 1500]
+MAX_CORRIDOR_DISTANCE = 1500   # meters - maximum analysis extent
+NEAR_DISTANCE_MAX = 300        # meters - "near river" upper bound (0-300m)
+FAR_DISTANCE_MIN = 750         # meters - "far from river" lower bound (750-1500m)
 
 # GWR parameters
 GWR_BANDWIDTH = 500        # meters

@@ -29,7 +29,7 @@ warnings.filterwarnings('ignore')
 # Import shared configuration
 from config import (PROJECT_ROOT, RAW_TIF_DIR, VECTOR_DIR, HAIHE_RIVER,
                     DATA_DIR, MAPS_BUFFER, MONTH_NAMES, BUFFER_DISTANCES,
-                    ensure_dirs)
+                    MAX_CORRIDOR_DISTANCE, ensure_dirs)
 
 # ============================================================================
 # CONFIGURATION
@@ -429,7 +429,7 @@ def plot_monthly_cooling_intensity(df, output_path):
     ax.set_xlabel('Month', fontsize=12)
     ax.set_ylabel('Cooling Intensity ΔT (°C)', fontsize=12)
     ax.set_title('Monthly Cooling Intensity of Haihe River\n'
-                 '(Temperature Difference: Urban 1000m - River Edge)', fontsize=13, fontweight='bold')
+                 f'(Temperature Difference: Urban {MAX_CORRIDOR_DISTANCE}m - River Edge)', fontsize=13, fontweight='bold')
     ax.grid(True, axis='y', alpha=0.3)
     
     plt.tight_layout()
