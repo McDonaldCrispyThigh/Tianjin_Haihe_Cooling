@@ -76,26 +76,29 @@ This project implements a **multi-temporal composite analysis** using Landsat 8/
 ```
 Tianjin_Haihe_Cooling/
 ├── Data/
-│   ├── Raw_TIF/                   # GEE monthly composites (v1: 2-band, v2: 4-band)
-│   ├── Processed/                 # Extracted bands by month
-│   ├── Vector/                    # Haihe_River.shp, buffer shapefiles
-│   ├── GWR_Results/               # Single-variable GWR outputs
-│   ├── GWR_Multivariate/          # Multi-variable GWR outputs (12 months)
-│   └── Spatial_Stats/             # Moran's I & LISA results
+│   ├── Raw_TIF/                    # GEE monthly composites (v1: 2-band, v2: 4-band)
+│   ├── Processed/Month_XX/         # Extracted single-band TIFs
+│   ├── Vector/                     # Haihe_River.shp, buffer shapefiles
+│   ├── GWR_Results/                # Single-variable GWR sample data
+│   ├── GWR_Multivariate/           # Multi-variable GWR outputs (12 months)
+│   └── Spatial_Stats/              # Moran's I & LISA results
 ├── Scripts/
-│   ├── 00 GEE_data_acquisition.js # Google Earth Engine export
-│   ├── 01 preprocessing.py        # Band extraction & water masking
-│   ├── 02 LST retrieval.py        # Buffer analysis & zonal statistics
-│   ├── 03 GWR analysis.py         # Single-variable GWR
+│   ├── config.py                   # Shared configuration (paths, constants)
+│   ├── 00 GEE_data_acquisition.js  # Google Earth Engine export
+│   ├── 01 preprocessing.py         # Band extraction & water masking
+│   ├── 02 LST retrieval.py         # Buffer analysis & zonal statistics
+│   ├── 03 GWR analysis.py          # Single-variable GWR
 │   ├── 04 spatial_autocorrelation.py
 │   ├── 05 seasonal_analysis.py
-│   ├── 06 multivariate_GWR.py     # LST ~ Distance + NDVI + NDBI
-│   └── 07 riverside_analysis.py   # Corridor analysis (0-1500m)
+│   ├── 06 multivariate_GWR.py      # LST ~ Distance + NDVI + NDBI
+│   └── 07 riverside_analysis.py    # Corridor analysis (0-1500m)
 ├── Maps/
-│   ├── GWR_Multivariate/          # Coefficient distribution maps
-│   ├── Riverside_Analysis/        # Corridor-focused visualizations
-│   ├── Spatial_Autocorrelation/   # LISA & hot spot maps
-│   └── Seasonal_Analysis/         # Temporal pattern charts
+│   ├── Buffer_Analysis/            # Cooling gradient charts (Script 02)
+│   ├── GWR_SingleVar/              # Local regression maps (Script 03)
+│   ├── GWR_Multivariate/           # Coefficient distribution maps
+│   ├── Spatial_Autocorrelation/    # LISA & hot spot maps
+│   ├── Seasonal_Analysis/          # Temporal pattern charts
+│   └── Riverside_Analysis/         # Corridor-focused visualizations
 ├── Docs/
 │   └── OPERATION_GUIDE.md
 ├── requirements.txt

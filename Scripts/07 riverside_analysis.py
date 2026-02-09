@@ -23,32 +23,22 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
+# Import shared configuration
+from config import (GWR_MULTI_DIR, VECTOR_DIR, HAIHE_RIVER,
+                    MAPS_RIVERSIDE, MONTH_NAMES, ensure_dirs)
+
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Input paths
-GWR_RESULTS_DIR = os.path.join(PROJECT_ROOT, "Data", "GWR_Multivariate")
-VECTOR_DIR = os.path.join(PROJECT_ROOT, "Data", "Vector")
-HAIHE_RIVER = os.path.join(VECTOR_DIR, "Haihe_River.shp")
-
-# Output paths - NEW FOLDER for riverside analysis
-OUTPUT_DIR = os.path.join(PROJECT_ROOT, "Maps", "Riverside_Analysis")
+GWR_RESULTS_DIR = GWR_MULTI_DIR
+OUTPUT_DIR = MAPS_RIVERSIDE
 
 # Analysis configuration
 MAX_DISTANCE = 1500  # Only analyze within 1.5km of river
 DISTANCE_BANDS = [0, 100, 200, 300, 500, 750, 1000, 1500]  # Distance bins
 
-# Month names
-MONTH_NAMES = {
-    '01': 'January', '02': 'February', '03': 'March', '04': 'April',
-    '05': 'May', '06': 'June', '07': 'July', '08': 'August',
-    '09': 'September', '10': 'October', '11': 'November', '12': 'December'
-}
-
-# Season definitions
+# Season definitions (string month keys for this script)
 SEASONS = {
     'Spring': ['03', '04', '05'],
     'Summer': ['06', '07', '08'],

@@ -24,34 +24,15 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
+# Import shared configuration
+from config import (DATA_DIR, MAPS_SEASONAL, MONTH_ABBR as MONTH_NAMES,
+                    MONTH_FULL, SEASONS, SEASON_COLORS, ensure_dirs)
+
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(PROJECT_ROOT, "Data")
-MAPS_DIR = os.path.join(PROJECT_ROOT, "Maps", "Seasonal_Analysis")
-
-# Month labels
-MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-               'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-MONTH_FULL = ['January', 'February', 'March', 'April', 'May', 'June',
-              'July', 'August', 'September', 'October', 'November', 'December']
-
-# Season definitions (Northern Hemisphere)
-SEASONS = {
-    'Winter': [12, 1, 2],
-    'Spring': [3, 4, 5],
-    'Summer': [6, 7, 8],
-    'Autumn': [9, 10, 11]
-}
-
-SEASON_COLORS = {
-    'Winter': '#2c7bb6',
-    'Spring': '#7fbc41',
-    'Summer': '#d7191c',
-    'Autumn': '#fdae61'
-}
+MAPS_DIR = MAPS_SEASONAL
 
 # ============================================================================
 # SETUP

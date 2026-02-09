@@ -29,31 +29,18 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
+# Import shared configuration
+from config import (PROJECT_ROOT, RAW_TIF_DIR, VECTOR_DIR, HAIHE_RIVER,
+                    DATA_DIR, MAPS_GWR_SINGLE, MONTH_NAMES,
+                    SAMPLE_SPACING_GWR, ensure_dirs)
+
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
 
-# Use relative paths - script should be run from project root
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Input paths - Using YOUR existing Haihe_River.shp
-RAW_TIF_DIR = os.path.join(PROJECT_ROOT, "Data", "Raw_TIF")
-VECTOR_DIR = os.path.join(PROJECT_ROOT, "Data", "Vector")
-HAIHE_RIVER = os.path.join(VECTOR_DIR, "Haihe_River.shp")
-
-# Output paths
-OUTPUT_DIR = os.path.join(PROJECT_ROOT, "Data")
-MAPS_DIR = os.path.join(PROJECT_ROOT, "Maps")
-
-# Sampling configuration
-SAMPLE_SPACING = 100  # meters between samples
-
-# Month names
-MONTH_NAMES = {
-    '01': 'January', '02': 'February', '03': 'March', '04': 'April',
-    '05': 'May', '06': 'June', '07': 'July', '08': 'August',
-    '09': 'September', '10': 'October', '11': 'November', '12': 'December'
-}
+OUTPUT_DIR = DATA_DIR
+MAPS_DIR = MAPS_GWR_SINGLE
+SAMPLE_SPACING = SAMPLE_SPACING_GWR
 
 # ============================================================================
 # SAMPLING FUNCTIONS
@@ -456,7 +443,8 @@ def process_single_month(month_str, sample_points, river_gdf):
     local_result = local_weighted_regression(sample_filtered, bandwidth=500)
     
     # Save data
-    output_csv = os.path.join(OUTPUT_DIR, f"GWR_Samples_{month_str}.csv")
+    output_csv = os.path.join(OUTPUT_DIR, "GWR_Results", f"GWR_Samples_{month_str}.csv")
+    os.makedirs(os.path.dirname(output_csv), exist_ok=True)
     local_result.drop(columns='geometry').to_csv(output_csv, index=False)
     print(f"  ✓ Sample data saved: {output_csv}")
     

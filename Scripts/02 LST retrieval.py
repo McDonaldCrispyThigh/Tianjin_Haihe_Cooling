@@ -26,32 +26,17 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
+# Import shared configuration
+from config import (PROJECT_ROOT, RAW_TIF_DIR, VECTOR_DIR, HAIHE_RIVER,
+                    DATA_DIR, MAPS_BUFFER, MONTH_NAMES, BUFFER_DISTANCES,
+                    ensure_dirs)
+
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
 
-# Use relative paths - script should be run from project root
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Input paths - Using YOUR existing Haihe_River.shp
-RAW_TIF_DIR = os.path.join(PROJECT_ROOT, "Data", "Raw_TIF")
-VECTOR_DIR = os.path.join(PROJECT_ROOT, "Data", "Vector")
-HAIHE_RIVER = os.path.join(VECTOR_DIR, "Haihe_River.shp")  # Your existing file!
-
-# Output paths
-STATS_OUTPUT = os.path.join(PROJECT_ROOT, "Data")
-MAPS_DIR = os.path.join(PROJECT_ROOT, "Maps")
-
-# Buffer configuration (in meters)
-BUFFER_DISTANCES = [30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 
-                    350, 400, 450, 500, 600, 700, 800, 900, 1000]
-
-# Month names for labeling
-MONTH_NAMES = {
-    '01': 'January', '02': 'February', '03': 'March', '04': 'April',
-    '05': 'May', '06': 'June', '07': 'July', '08': 'August',
-    '09': 'September', '10': 'October', '11': 'November', '12': 'December'
-}
+STATS_OUTPUT = DATA_DIR
+MAPS_DIR = MAPS_BUFFER
 
 # ============================================================================
 # ENVIRONMENT SETUP
@@ -59,10 +44,7 @@ MONTH_NAMES = {
 
 def setup_environment():
     """Create output directories."""
-    for directory in [STATS_OUTPUT, MAPS_DIR]:
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-            print(f"✓ Created: {directory}")
+    ensure_dirs(STATS_OUTPUT, MAPS_DIR)
 
 # ============================================================================
 # FITTING FUNCTIONS

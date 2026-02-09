@@ -29,31 +29,18 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
+# Import shared configuration
+from config import (RAW_TIF_DIR, VECTOR_DIR, HAIHE_RIVER,
+                    GWR_MULTI_DIR, MAPS_GWR_MULTI, MONTH_NAMES,
+                    SAMPLE_SPACING_MULTI, GWR_BANDWIDTH, ensure_dirs)
+
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Input paths - Using v2 data with 4 bands
-RAW_TIF_DIR = os.path.join(PROJECT_ROOT, "Data", "Raw_TIF")
-VECTOR_DIR = os.path.join(PROJECT_ROOT, "Data", "Vector")
-HAIHE_RIVER = os.path.join(VECTOR_DIR, "Haihe_River.shp")
-
-# Output paths
-OUTPUT_DIR = os.path.join(PROJECT_ROOT, "Data", "GWR_Multivariate")
-MAPS_DIR = os.path.join(PROJECT_ROOT, "Maps", "GWR_Multivariate")
-
-# Sampling configuration
-SAMPLE_SPACING = 120  # meters (slightly denser for multi-variable)
-GWR_BANDWIDTH = 500   # meters
-
-# Month names
-MONTH_NAMES = {
-    '01': 'January', '02': 'February', '03': 'March', '04': 'April',
-    '05': 'May', '06': 'June', '07': 'July', '08': 'August',
-    '09': 'September', '10': 'October', '11': 'November', '12': 'December'
-}
+OUTPUT_DIR = GWR_MULTI_DIR
+MAPS_DIR = MAPS_GWR_MULTI
+SAMPLE_SPACING = SAMPLE_SPACING_MULTI
 
 # ============================================================================
 # SETUP

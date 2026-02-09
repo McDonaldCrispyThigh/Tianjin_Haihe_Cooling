@@ -39,28 +39,18 @@ except ImportError:
     print("    pip install libpysal esda splot")
     SPATIAL_LIBS_AVAILABLE = False
 
+# Import shared configuration
+from config import (RAW_TIF_DIR, MAPS_SPATIAL, SPATIAL_STATS_DIR, MONTH_NAMES,
+                    SAMPLE_SPACING_SPATIAL, SIGNIFICANCE_LEVEL, N_PERMUTATIONS,
+                    ensure_dirs)
+
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RAW_TIF_DIR = os.path.join(PROJECT_ROOT, "Data", "Raw_TIF")
-VECTOR_DIR = os.path.join(PROJECT_ROOT, "Data", "Vector")
-OUTPUT_DIR = os.path.join(PROJECT_ROOT, "Data", "Spatial_Stats")
-MAPS_DIR = os.path.join(PROJECT_ROOT, "Maps", "Spatial_Autocorrelation")
-
-# Sampling configuration
-SAMPLE_SPACING = 150  # meters (balance between resolution and computation)
-
-# Analysis parameters
-SIGNIFICANCE_LEVEL = 0.05
-N_PERMUTATIONS = 999  # For Monte Carlo significance testing
-
-MONTH_NAMES = {
-    '01': 'January', '02': 'February', '03': 'March', '04': 'April',
-    '05': 'May', '06': 'June', '07': 'July', '08': 'August',
-    '09': 'September', '10': 'October', '11': 'November', '12': 'December'
-}
+OUTPUT_DIR = SPATIAL_STATS_DIR
+MAPS_DIR = MAPS_SPATIAL
+SAMPLE_SPACING = SAMPLE_SPACING_SPATIAL
 
 # ============================================================================
 # SETUP

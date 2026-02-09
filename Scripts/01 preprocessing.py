@@ -21,20 +21,15 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
+# Import shared configuration
+from config import (PROJECT_ROOT, RAW_TIF_DIR, PROCESSED_DIR, VECTOR_DIR,
+                    NDWI_THRESHOLD)
+
 # ============================================================================
-# CONFIGURATION - MODIFY THESE PATHS TO MATCH YOUR SYSTEM
+# CONFIGURATION
 # ============================================================================
 
-# Use relative paths - script should be run from project root
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Input/Output directories
-RAW_TIF_DIR = os.path.join(PROJECT_ROOT, "Data", "Raw_TIF")
-OUTPUT_DIR = os.path.join(PROJECT_ROOT, "Data", "Processed")
-VECTOR_DIR = os.path.join(PROJECT_ROOT, "Data", "Vector")
-
-# NDWI threshold for water extraction (adjust based on visual inspection)
-NDWI_THRESHOLD = 0.1
+OUTPUT_DIR = PROCESSED_DIR
 
 # ============================================================================
 # ENVIRONMENT SETUP

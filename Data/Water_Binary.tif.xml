@@ -1,2 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<metadata xml:lang="en"><Esri><CreaDate>20260204</CreaDate><CreaTime>12191800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce><DataProperties><lineage><Process ToolSource="c:\myarcgispro\Resources\ArcToolbox\toolboxes\Spatial Analyst Tools.tbx\RasterCalculator" Date="20260204" Time="121918">RasterCalculator "ExtractBand("Tianjin_Monthly_Median_07.tif", 2) &gt; -0.006" D:\Douments\UNIVERSITY\2025-2026_2\GEOG_4503\Tianjin_Haihe_Cooling\Data\Water_Binary.tif</Process></lineage></DataProperties></Esri></metadata>
