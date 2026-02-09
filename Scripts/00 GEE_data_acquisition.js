@@ -162,7 +162,7 @@ Map.addLayer(sampleMonth, ndwiViz, 'July NDWI', false);
 // 7. BATCH EXPORT TO GOOGLE DRIVE (v2.0 - 4 bands)
 // =============================================================================
 
-// ⚠️ IMPORTANT: New files will have 4 bands instead of 2!
+// [WARNING] IMPORTANT: New files will have 4 bands instead of 2!
 // Band order: LST_Celsius, NDVI, NDBI, NDWI
 
 for (var i = 0; i < 12; i++) {

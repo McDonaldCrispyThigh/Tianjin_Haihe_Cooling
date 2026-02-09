@@ -77,9 +77,9 @@ def create_multi_ring_buffer(input_shp, distances):
     
     # Read YOUR river shapefile
     river = gpd.read_file(input_shp)
-    print(f"  ✓ Loaded YOUR river boundary: {input_shp}")
-    print(f"  ✓ Features: {len(river)}")
-    print(f"  ✓ CRS: {river.crs}")
+    print(f"  [OK] Loaded YOUR river boundary: {input_shp}")
+    print(f"  [OK] Features: {len(river)}")
+    print(f"  [OK] CRS: {river.crs}")
     
     # Dissolve to single geometry
     river_dissolved = river.dissolve()
@@ -109,8 +109,8 @@ def create_multi_ring_buffer(input_shp, distances):
     # Save to shapefile
     output_shp = os.path.join(VECTOR_DIR, "Haihe_Buffers_Analysis.shp")
     buffers_gdf.to_file(output_shp)
-    print(f"\n  ✓ Buffers saved: {output_shp}")
-    print(f"  ✓ Total rings: {len(buffers_gdf)}")
+    print(f"\n  [OK] Buffers saved: {output_shp}")
+    print(f"  [OK] Total rings: {len(buffers_gdf)}")
     
     return buffers_gdf, river_geom
 
@@ -161,7 +161,7 @@ def calculate_zonal_statistics(buffers_gdf, lst_raster_path, month_str):
     df['Month'] = month_str
     df = df.sort_values('distance')
     
-    print(f"    ✓ Statistics calculated for {len(df)} zones")
+    print(f"    [OK] Statistics calculated for {len(df)} zones")
     
     return df
 
@@ -182,7 +182,7 @@ def process_all_months(buffers_gdf):
         lst_raster = os.path.join(RAW_TIF_DIR, f"Tianjin_Monthly_Median_{month_str}.tif")
         
         if not os.path.exists(lst_raster):
-            print(f"\n  ⚠ Month {month_str}: LST raster not found, skipping...")
+            print(f"\n  [WARNING] Month {month_str}: LST raster not found, skipping...")
             continue
         
         print(f"\n{'─'*40}")
@@ -194,7 +194,7 @@ def process_all_months(buffers_gdf):
         # Export individual month Excel
         excel_output = os.path.join(STATS_OUTPUT, f"Gradient_Month_{month_str}.xlsx")
         df.to_excel(excel_output, index=False)
-        print(f"    ✓ Excel saved: {excel_output}")
+        print(f"    [OK] Excel saved: {excel_output}")
         
         all_results.append(df)
     
@@ -203,7 +203,7 @@ def process_all_months(buffers_gdf):
         combined_df = pd.concat(all_results, ignore_index=True)
         master_excel = os.path.join(STATS_OUTPUT, "All_Months_Gradient.xlsx")
         combined_df.to_excel(master_excel, index=False)
-        print(f"\n✓ Master gradient file: {master_excel}")
+        print(f"\n[OK] Master gradient file: {master_excel}")
         return combined_df
     
     return None
@@ -282,7 +282,7 @@ def plot_cooling_gradient_with_equation(df, month_str, output_path):
                 bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
         
     except Exception as e:
-        print(f"    ⚠ Logarithmic fit failed: {e}")
+        print(f"    [WARNING] Logarithmic fit failed: {e}")
     
     # Calculate cooling metrics
     delta_t = y[-1] - y[0]
@@ -299,7 +299,7 @@ def plot_cooling_gradient_with_equation(df, month_str, output_path):
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
     
-    print(f"    ✓ Gradient chart saved: {output_path}")
+    print(f"    [OK] Gradient chart saved: {output_path}")
     return popt_log if 'popt_log' in dir() else None
 
 # ============================================================================
@@ -350,7 +350,7 @@ def plot_scatter_with_equation(df, month_str, output_path):
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
     
-    print(f"    ✓ Scatter plot saved: {output_path}")
+    print(f"    [OK] Scatter plot saved: {output_path}")
 
 # ============================================================================
 # VISUALIZATION - SEASONAL COMPARISON
@@ -389,7 +389,7 @@ def plot_seasonal_comparison(df, output_path):
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
     
-    print(f"\n✓ Seasonal comparison chart: {output_path}")
+    print(f"\n[OK] Seasonal comparison chart: {output_path}")
 
 # ============================================================================
 # VISUALIZATION - COOLING INTENSITY SUMMARY
@@ -436,7 +436,7 @@ def plot_monthly_cooling_intensity(df, output_path):
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
     
-    print(f"✓ Monthly cooling intensity chart: {output_path}")
+    print(f"[OK] Monthly cooling intensity chart: {output_path}")
 
 # ============================================================================
 # MAIN EXECUTION
@@ -458,7 +458,7 @@ def main():
         print(f"  {HAIHE_RIVER}")
         return
     
-    print(f"\n✓ Using your river boundary: {HAIHE_RIVER}")
+    print(f"\n[OK] Using your river boundary: {HAIHE_RIVER}")
     
     # Step 1: Create multi-ring buffers from YOUR shapefile
     buffers_gdf, river_geom = create_multi_ring_buffer(HAIHE_RIVER, BUFFER_DISTANCES)

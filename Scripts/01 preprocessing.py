@@ -44,9 +44,9 @@ def setup_environment():
     for directory in [OUTPUT_DIR, VECTOR_DIR]:
         if not os.path.exists(directory):
             os.makedirs(directory)
-            print(f"✓ Created directory: {directory}")
+            print(f"[OK] Created directory: {directory}")
         else:
-            print(f"✓ Directory exists: {directory}")
+            print(f"[OK] Directory exists: {directory}")
 
 # ============================================================================
 # DATA VALIDATION
@@ -73,10 +73,10 @@ def validate_monthly_composites():
             # Validate raster properties using rasterio
             with rasterio.open(filepath) as src:
                 band_count = src.count
-                print(f"  ✓ Month {month_str}: Found ({band_count} bands, {src.width}x{src.height} pixels)")
+                print(f"  [OK] Month {month_str}: Found ({band_count} bands, {src.width}x{src.height} pixels)")
             valid_files.append(filepath)
         else:
-            print(f"  ✗ Month {month_str}: MISSING")
+            print(f"  [FAIL] Month {month_str}: MISSING")
             missing_files.append(filename)
     
     print(f"\nSummary: {len(valid_files)}/12 files found")
@@ -116,14 +116,14 @@ def extract_bands(input_tif, month_str):
         lst_data = src.read(1)
         with rasterio.open(lst_output, 'w', **meta) as dst:
             dst.write(lst_data, 1)
-        print(f"    ✓ LST extracted: {lst_output}")
+        print(f"    [OK] LST extracted: {lst_output}")
         
         # Extract NDWI (Band 2)
         ndwi_output = os.path.join(month_output, f"NDWI_{month_str}.tif")
         ndwi_data = src.read(2)
         with rasterio.open(ndwi_output, 'w', **meta) as dst:
             dst.write(ndwi_data, 1)
-        print(f"    ✓ NDWI extracted: {ndwi_output}")
+        print(f"    [OK] NDWI extracted: {ndwi_output}")
     
     return lst_output, ndwi_output
 
@@ -155,7 +155,7 @@ def extract_water_body(ndwi_raster, month_str, threshold=NDWI_THRESHOLD):
         with rasterio.open(water_binary_output, 'w', **meta) as dst:
             dst.write(water_binary, 1)
     
-    print(f"    ✓ Water binary saved: {water_binary_output}")
+    print(f"    [OK] Water binary saved: {water_binary_output}")
     return water_binary_output
 
 def water_raster_to_polygon(water_binary_raster, month_str):
@@ -184,10 +184,10 @@ def water_raster_to_polygon(water_binary_raster, month_str):
         if geoms:
             gdf = gpd.GeoDataFrame.from_features(geoms, crs=crs)
             gdf.to_file(output_shp)
-            print(f"    ✓ Water polygon saved: {output_shp}")
-            print(f"    ✓ Total water features: {len(gdf)}")
+            print(f"    [OK] Water polygon saved: {output_shp}")
+            print(f"    [OK] Total water features: {len(gdf)}")
         else:
-            print(f"    ⚠ No water features found!")
+            print(f"    [WARNING] No water features found!")
             return None
     
     return output_shp

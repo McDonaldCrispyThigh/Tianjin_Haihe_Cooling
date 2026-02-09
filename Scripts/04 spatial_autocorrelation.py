@@ -35,7 +35,7 @@ try:
     from splot.esda import moran_scatterplot, lisa_cluster, plot_local_autocorrelation
     SPATIAL_LIBS_AVAILABLE = True
 except ImportError:
-    print("⚠️  Spatial libraries not installed. Run:")
+    print("[WARNING]  Spatial libraries not installed. Run:")
     print("    pip install libpysal esda splot")
     SPATIAL_LIBS_AVAILABLE = False
 
@@ -60,7 +60,7 @@ def setup_directories():
     """Create output directories."""
     for d in [OUTPUT_DIR, MAPS_DIR]:
         os.makedirs(d, exist_ok=True)
-        print(f"✓ Directory ready: {d}")
+        print(f"[OK] Directory ready: {d}")
 
 # ============================================================================
 # SAMPLING FUNCTIONS
@@ -83,7 +83,7 @@ def create_sample_grid(raster_path, spacing=SAMPLE_SPACING):
                 points.append(Point(x, y))
         
         gdf = gpd.GeoDataFrame({'geometry': points}, crs=crs)
-        print(f"    ✓ Created {len(gdf)} sample points")
+        print(f"    [OK] Created {len(gdf)} sample points")
         return gdf
 
 def extract_lst_at_points(gdf, raster_path):
@@ -101,7 +101,7 @@ def extract_lst_at_points(gdf, raster_path):
     gdf = gdf[(gdf['LST'] > -50) & (gdf['LST'] < 80)]
     gdf = gdf.dropna(subset=['LST'])
     
-    print(f"    ✓ Valid samples: {len(gdf)}")
+    print(f"    [OK] Valid samples: {len(gdf)}")
     return gdf
 
 # ============================================================================
@@ -137,9 +137,9 @@ def calculate_global_morans_i(gdf, variable='LST', k_neighbors=8):
         'Significant': moran.p_sim < SIGNIFICANCE_LEVEL
     }
     
-    print(f"    ✓ Moran's I = {moran.I:.4f}")
-    print(f"    ✓ Z-score = {moran.z_norm:.4f}")
-    print(f"    ✓ P-value = {moran.p_sim:.4f}")
+    print(f"    [OK] Moran's I = {moran.I:.4f}")
+    print(f"    [OK] Z-score = {moran.z_norm:.4f}")
+    print(f"    [OK] P-value = {moran.p_sim:.4f}")
     
     if moran.p_sim < SIGNIFICANCE_LEVEL:
         if moran.I > 0:
@@ -197,7 +197,7 @@ def calculate_lisa(gdf, w, variable='LST'):
     
     # Summary statistics
     cluster_counts = gdf['LISA_Cluster'].value_counts()
-    print(f"    ✓ Cluster distribution:")
+    print(f"    [OK] Cluster distribution:")
     for cluster, count in cluster_counts.items():
         pct = count / len(gdf) * 100
         print(f"      - {cluster}: {count} ({pct:.1f}%)")
@@ -257,7 +257,7 @@ def calculate_getis_ord(gdf, variable='LST', distance_threshold=500):
     
     # Summary
     spot_counts = gdf['Gi_Spot'].value_counts()
-    print(f"    ✓ Hot/Cold spot distribution:")
+    print(f"    [OK] Hot/Cold spot distribution:")
     for spot, count in spot_counts.items():
         pct = count / len(gdf) * 100
         print(f"      - {spot}: {count} ({pct:.1f}%)")
@@ -308,7 +308,7 @@ def plot_moran_scatterplot(moran, gdf, month_str, variable='LST'):
     output_path = os.path.join(MAPS_DIR, f"Moran_Scatter_{month_str}.png")
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"    ✓ Saved: {output_path}")
+    print(f"    [OK] Saved: {output_path}")
 
 def plot_lisa_cluster_map(gdf, month_str):
     """Create LISA cluster map."""
@@ -349,7 +349,7 @@ def plot_lisa_cluster_map(gdf, month_str):
     output_path = os.path.join(MAPS_DIR, f"LISA_Cluster_{month_str}.png")
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"    ✓ Saved: {output_path}")
+    print(f"    [OK] Saved: {output_path}")
 
 def plot_getis_ord_map(gdf, month_str):
     """Create Getis-Ord Gi* hot/cold spot map."""
@@ -389,7 +389,7 @@ def plot_getis_ord_map(gdf, month_str):
     output_path = os.path.join(MAPS_DIR, f"Getis_Ord_{month_str}.png")
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"    ✓ Saved: {output_path}")
+    print(f"    [OK] Saved: {output_path}")
 
 # ============================================================================
 # MAIN ANALYSIS PIPELINE
@@ -404,7 +404,7 @@ def analyze_single_month(month_str):
     # Load raster
     raster_path = os.path.join(RAW_TIF_DIR, f"Tianjin_Monthly_Median_{month_str}.tif")
     if not os.path.exists(raster_path):
-        print(f"  ✗ Raster not found: {raster_path}")
+        print(f"  [FAIL] Raster not found: {raster_path}")
         return None
     
     # Create sample points and extract LST
@@ -412,7 +412,7 @@ def analyze_single_month(month_str):
     gdf = extract_lst_at_points(gdf, raster_path)
     
     if len(gdf) < 100:
-        print(f"  ✗ Too few valid samples ({len(gdf)})")
+        print(f"  [FAIL] Too few valid samples ({len(gdf)})")
         return None
     
     # 1. Global Moran's I
@@ -430,13 +430,13 @@ def analyze_single_month(month_str):
     # Save results
     output_csv = os.path.join(OUTPUT_DIR, f"Spatial_Stats_{month_str}.csv")
     gdf.drop(columns=['geometry', 'color'], errors='ignore').to_csv(output_csv, index=False)
-    print(f"  ✓ Results saved: {output_csv}")
+    print(f"  [OK] Results saved: {output_csv}")
     
     # Save as shapefile
     output_shp = os.path.join(OUTPUT_DIR, f"Spatial_Stats_{month_str}.shp")
     gdf_save = gdf.drop(columns=['color'], errors='ignore')
     gdf_save.to_file(output_shp)
-    print(f"  ✓ Shapefile saved: {output_shp}")
+    print(f"  [OK] Shapefile saved: {output_shp}")
     
     return {
         'month': month_str,
@@ -457,7 +457,7 @@ def analyze_all_months():
     setup_directories()
     
     if not SPATIAL_LIBS_AVAILABLE:
-        print("\n❌ Cannot proceed without spatial libraries.")
+        print("\n[ERROR] Cannot proceed without spatial libraries.")
         print("   Install with: pip install libpysal esda splot")
         return
     
@@ -474,7 +474,7 @@ def analyze_all_months():
         summary_df = pd.DataFrame(all_results)
         summary_path = os.path.join(OUTPUT_DIR, "Spatial_Autocorrelation_Summary.csv")
         summary_df.to_csv(summary_path, index=False)
-        print(f"\n✓ Summary saved: {summary_path}")
+        print(f"\n[OK] Summary saved: {summary_path}")
         
         # Plot summary
         plot_monthly_summary(summary_df)
@@ -521,7 +521,7 @@ def plot_monthly_summary(summary_df):
     output_path = os.path.join(MAPS_DIR, "Monthly_Spatial_Autocorrelation_Summary.png")
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"  ✓ Summary plot saved: {output_path}")
+    print(f"  [OK] Summary plot saved: {output_path}")
 
 # ============================================================================
 # ENTRY POINT

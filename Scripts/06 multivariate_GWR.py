@@ -50,7 +50,7 @@ def setup_directories():
     """Create output directories."""
     for d in [OUTPUT_DIR, MAPS_DIR]:
         os.makedirs(d, exist_ok=True)
-        print(f"✓ Directory ready: {d}")
+        print(f"[OK] Directory ready: {d}")
 
 def check_v2_data():
     """Check if v2 data (4-band) exists."""
@@ -72,14 +72,14 @@ def check_v2_data():
             with rasterio.open(v2_path) as src:
                 if src.count >= 4:
                     v2_files.append(month_str)
-                    print(f"  ✓ Month {month_str}: v2 data found (4 bands)")
+                    print(f"  [OK] Month {month_str}: v2 data found (4 bands)")
                 else:
-                    print(f"  ⚠ Month {month_str}: v2 file has only {src.count} bands")
+                    print(f"  [WARNING] Month {month_str}: v2 file has only {src.count} bands")
         elif os.path.exists(v1_path):
             v1_files.append(month_str)
-            print(f"  ⚠ Month {month_str}: Only v1 data (2 bands) - need to download v2")
+            print(f"  [WARNING] Month {month_str}: Only v1 data (2 bands) - need to download v2")
         else:
-            print(f"  ✗ Month {month_str}: No data found")
+            print(f"  [FAIL] Month {month_str}: No data found")
     
     if len(v2_files) == 0:
         print("\n" + "!"*60)
@@ -114,7 +114,7 @@ def create_sample_points(raster_path, spacing=SAMPLE_SPACING):
                 points.append(Point(x, y))
         
         gdf = gpd.GeoDataFrame({'geometry': points}, crs=crs)
-        print(f"    ✓ Created {len(gdf)} sample points")
+        print(f"    [OK] Created {len(gdf)} sample points")
         return gdf
 
 def extract_all_bands(gdf, raster_path):
@@ -140,10 +140,10 @@ def extract_all_bands(gdf, raster_path):
     )
     gdf = gdf[valid_mask].dropna()
     
-    print(f"    ✓ Valid samples: {len(gdf)}")
-    print(f"    ✓ LST range: {gdf['LST'].min():.1f} - {gdf['LST'].max():.1f} °C")
-    print(f"    ✓ NDVI range: {gdf['NDVI'].min():.3f} - {gdf['NDVI'].max():.3f}")
-    print(f"    ✓ NDBI range: {gdf['NDBI'].min():.3f} - {gdf['NDBI'].max():.3f}")
+    print(f"    [OK] Valid samples: {len(gdf)}")
+    print(f"    [OK] LST range: {gdf['LST'].min():.1f} - {gdf['LST'].max():.1f} °C")
+    print(f"    [OK] NDVI range: {gdf['NDVI'].min():.3f} - {gdf['NDVI'].max():.3f}")
+    print(f"    [OK] NDBI range: {gdf['NDBI'].min():.3f} - {gdf['NDBI'].max():.3f}")
     
     return gdf
 
@@ -158,7 +158,7 @@ def calculate_distance_to_river(gdf, river_shp=HAIHE_RIVER):
     distances = [point.distance(river_geom) for point in gdf.geometry]
     gdf['Distance'] = distances
     
-    print(f"    ✓ Distance range: {min(distances):.0f} - {max(distances):.0f} m")
+    print(f"    [OK] Distance range: {min(distances):.0f} - {max(distances):.0f} m")
     return gdf
 
 # ============================================================================
@@ -362,7 +362,7 @@ def plot_coefficient_maps(gdf, month_str):
     output_path = os.path.join(MAPS_DIR, f"GWR_Coefficients_{month_str}.png")
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"  ✓ Saved: {output_path}")
+    print(f"  [OK] Saved: {output_path}")
 
 def plot_coefficient_comparison(all_results):
     """Compare coefficient distributions across months."""
@@ -395,7 +395,7 @@ def plot_coefficient_comparison(all_results):
     output_path = os.path.join(MAPS_DIR, "Monthly_Coefficient_Comparison.png")
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"  ✓ Saved: {output_path}")
+    print(f"  [OK] Saved: {output_path}")
 
 def plot_variable_importance(all_results):
     """Plot relative importance of each variable by month."""
@@ -428,7 +428,7 @@ def plot_variable_importance(all_results):
     output_path = os.path.join(MAPS_DIR, "Variable_Importance_Monthly.png")
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"  ✓ Saved: {output_path}")
+    print(f"  [OK] Saved: {output_path}")
 
 # ============================================================================
 # MAIN PIPELINE
@@ -448,7 +448,7 @@ def analyze_single_month(month_str):
         raster_path = v2_path
         print(f"  Using v2 data (4 bands)")
     else:
-        print(f"  ✗ v2 data not found: {v2_path}")
+        print(f"  [FAIL] v2 data not found: {v2_path}")
         print(f"    Please download from GEE first!")
         return None
     
@@ -462,7 +462,7 @@ def analyze_single_month(month_str):
     gdf = calculate_distance_to_river(gdf)
     
     if len(gdf) < 100:
-        print(f"  ✗ Too few valid samples")
+        print(f"  [FAIL] Too few valid samples")
         return None
     
     # Run global OLS
@@ -477,11 +477,11 @@ def analyze_single_month(month_str):
     # Save results
     output_csv = os.path.join(OUTPUT_DIR, f"GWR_Multivariate_{month_str}.csv")
     gdf.drop(columns=['geometry']).to_csv(output_csv, index=False)
-    print(f"  ✓ Results saved: {output_csv}")
+    print(f"  [OK] Results saved: {output_csv}")
     
     output_shp = os.path.join(OUTPUT_DIR, f"GWR_Multivariate_{month_str}.shp")
     gdf.to_file(output_shp)
-    print(f"  ✓ Shapefile saved: {output_shp}")
+    print(f"  [OK] Shapefile saved: {output_shp}")
     
     return {
         'month': month_str,
@@ -535,7 +535,7 @@ def run_all_months():
         summary_df = pd.DataFrame(all_results.values())
         summary_path = os.path.join(OUTPUT_DIR, "GWR_Multivariate_Summary.csv")
         summary_df.to_csv(summary_path, index=False)
-        print(f"\n✓ Summary saved: {summary_path}")
+        print(f"\n[OK] Summary saved: {summary_path}")
         
         # Print comparison
         print("\n" + "="*60)

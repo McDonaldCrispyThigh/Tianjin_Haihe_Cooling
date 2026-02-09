@@ -41,7 +41,7 @@ MAPS_DIR = MAPS_SEASONAL
 def setup_directories():
     """Create output directories."""
     os.makedirs(MAPS_DIR, exist_ok=True)
-    print(f"✓ Directory ready: {MAPS_DIR}")
+    print(f"[OK] Directory ready: {MAPS_DIR}")
 
 # ============================================================================
 # DATA LOADING
@@ -64,9 +64,9 @@ def load_gradient_data():
             df['Month'] = month
             df['Month_Name'] = MONTH_NAMES[month-1]
             all_data.append(df)
-            print(f"  ✓ Loaded: Month {month_str} ({len(df)} records)")
+            print(f"  [OK] Loaded: Month {month_str} ({len(df)} records)")
         else:
-            print(f"  ✗ Missing: {filepath}")
+            print(f"  [FAIL] Missing: {filepath}")
     
     if all_data:
         combined = pd.concat(all_data, ignore_index=True)
@@ -202,15 +202,15 @@ def fit_seasonal_model(metrics_df, variable='Delta_T'):
             'perr': perr
         }
         
-        print(f"    ✓ Amplitude = {amplitude:.3f}")
-        print(f"    ✓ Mean = {offset:.3f}")
-        print(f"    ✓ Peak month ≈ {results['peak_month_name']}")
-        print(f"    ✓ R² = {r_squared:.4f}")
+        print(f"    [OK] Amplitude = {amplitude:.3f}")
+        print(f"    [OK] Mean = {offset:.3f}")
+        print(f"    [OK] Peak month ≈ {results['peak_month_name']}")
+        print(f"    [OK] R² = {r_squared:.4f}")
         
         return results
         
     except Exception as e:
-        print(f"    ✗ Fitting failed: {e}")
+        print(f"    [FAIL] Fitting failed: {e}")
         return None
 
 # ============================================================================
@@ -333,7 +333,7 @@ def plot_seasonal_cycle(metrics_df, fit_results):
     output_path = os.path.join(MAPS_DIR, "Seasonal_Cycle_DeltaT.png")
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"  ✓ Saved: {output_path}")
+    print(f"  [OK] Saved: {output_path}")
 
 def plot_seasonal_heatmap(metrics_df):
     """Create heatmap of cooling metrics across months and distances."""
@@ -370,7 +370,7 @@ def plot_seasonal_heatmap(metrics_df):
     output_path = os.path.join(MAPS_DIR, "Seasonal_Metrics_Comparison.png")
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"  ✓ Saved: {output_path}")
+    print(f"  [OK] Saved: {output_path}")
 
 def plot_seasonal_boxplot(metrics_df):
     """Create boxplot comparing seasons."""
@@ -404,7 +404,7 @@ def plot_seasonal_boxplot(metrics_df):
     output_path = os.path.join(MAPS_DIR, "Seasonal_Boxplot.png")
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"  ✓ Saved: {output_path}")
+    print(f"  [OK] Saved: {output_path}")
 
 def plot_monthly_gradient_profiles(df):
     """Plot cooling gradient profiles for each month (overlaid)."""
@@ -437,7 +437,7 @@ def plot_monthly_gradient_profiles(df):
     output_path = os.path.join(MAPS_DIR, "Monthly_Gradient_Profiles_Overlay.png")
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"  ✓ Saved: {output_path}")
+    print(f"  [OK] Saved: {output_path}")
 
 def plot_phase_analysis(metrics_df):
     """Analyze phase relationship between LST and cooling effect."""
@@ -481,7 +481,7 @@ def plot_phase_analysis(metrics_df):
     output_path = os.path.join(MAPS_DIR, "Phase_Analysis_LST_DeltaT.png")
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    print(f"  ✓ Saved: {output_path}")
+    print(f"  [OK] Saved: {output_path}")
 
 # ============================================================================
 # MAIN PIPELINE
@@ -499,7 +499,7 @@ def run_seasonal_analysis():
     # Load data
     df = load_gradient_data()
     if df is None:
-        print("\n❌ No data found. Exiting.")
+        print("\n[ERROR] No data found. Exiting.")
         return
     
     # Calculate monthly metrics
@@ -528,7 +528,7 @@ def run_seasonal_analysis():
     # Save results
     output_csv = os.path.join(DATA_DIR, "Seasonal_Metrics_Summary.csv")
     metrics_df.to_csv(output_csv, index=False)
-    print(f"\n✓ Metrics saved: {output_csv}")
+    print(f"\n[OK] Metrics saved: {output_csv}")
     
     # Print final summary
     print("\n" + "="*60)

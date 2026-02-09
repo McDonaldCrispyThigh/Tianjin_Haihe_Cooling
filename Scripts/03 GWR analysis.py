@@ -64,7 +64,7 @@ def create_sample_points(raster_path, spacing=100):
                 points.append(Point(x, y))
         
         gdf = gpd.GeoDataFrame({'geometry': points}, crs=crs)
-        print(f"    ✓ Created {len(gdf)} sample points")
+        print(f"    [OK] Created {len(gdf)} sample points")
         
         return gdf
 
@@ -85,7 +85,7 @@ def extract_lst_values(sample_points, raster_path):
     valid_mask = (sample_points['LST'] > -50) & (sample_points['LST'] < 100)
     sample_points = sample_points[valid_mask]
     
-    print(f"    ✓ Valid samples: {len(sample_points)}")
+    print(f"    [OK] Valid samples: {len(sample_points)}")
     return sample_points
 
 def calculate_distance_to_river(sample_points, river_gdf):
@@ -104,7 +104,7 @@ def calculate_distance_to_river(sample_points, river_gdf):
     sample_points = sample_points.copy()
     sample_points['Distance'] = distances
     
-    print(f"    ✓ Distance range: {min(distances):.0f} - {max(distances):.0f} m")
+    print(f"    [OK] Distance range: {min(distances):.0f} - {max(distances):.0f} m")
     return sample_points
 
 # ============================================================================
@@ -175,8 +175,8 @@ def local_weighted_regression(sample_df, bandwidth=500):
     result_df['Local_R2'] = local_r2
     
     valid_slopes = local_slopes[~np.isnan(local_slopes)]
-    print(f"    ✓ Coefficient range: {valid_slopes.min():.6f} to {valid_slopes.max():.6f}")
-    print(f"    ✓ Mean slope: {np.nanmean(local_slopes):.6f}")
+    print(f"    [OK] Coefficient range: {valid_slopes.min():.6f} to {valid_slopes.max():.6f}")
+    print(f"    [OK] Mean slope: {np.nanmean(local_slopes):.6f}")
     
     return result_df
 
@@ -189,9 +189,9 @@ def run_ols_regression(sample_df):
     
     slope, intercept, r_value, p_value, std_err = stats.linregress(X, y)
     
-    print(f"    ✓ Equation: LST = {slope:.6f} × Distance + {intercept:.2f}")
-    print(f"    ✓ R² = {r_value**2:.4f}")
-    print(f"    ✓ p-value = {p_value:.2e}")
+    print(f"    [OK] Equation: LST = {slope:.6f} × Distance + {intercept:.2f}")
+    print(f"    [OK] R² = {r_value**2:.4f}")
+    print(f"    [OK] p-value = {p_value:.2e}")
     
     return {
         'slope': slope,
@@ -245,7 +245,7 @@ def plot_scatter_regression(sample_df, ols_result, month_str, output_path):
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
     
-    print(f"    ✓ Scatter plot saved: {output_path}")
+    print(f"    [OK] Scatter plot saved: {output_path}")
 
 def plot_local_regression_results(result_df, month_str, output_path):
     """
@@ -325,7 +325,7 @@ def plot_local_regression_results(result_df, month_str, output_path):
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
     
-    print(f"    ✓ Local regression map saved: {output_path}")
+    print(f"    [OK] Local regression map saved: {output_path}")
 
 def plot_local_r2_map(result_df, month_str, output_path):
     """Create map showing local R² values."""
@@ -356,7 +356,7 @@ def plot_local_r2_map(result_df, month_str, output_path):
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
     
-    print(f"    ✓ Local R² map saved: {output_path}")
+    print(f"    [OK] Local R² map saved: {output_path}")
 
 # ============================================================================
 # MONTHLY SUMMARY
@@ -404,7 +404,7 @@ def create_monthly_summary(all_results):
     plt.savefig(os.path.join(MAPS_DIR, "Monthly_Regression_Summary.png"), dpi=300, bbox_inches='tight')
     plt.close()
     
-    print(f"\n✓ Monthly summary chart saved")
+    print(f"\n[OK] Monthly summary chart saved")
 
 # ============================================================================
 # MAIN EXECUTION
@@ -419,7 +419,7 @@ def process_single_month(month_str, sample_points, river_gdf):
     lst_raster = os.path.join(RAW_TIF_DIR, f"Tianjin_Monthly_Median_{month_str}.tif")
     
     if not os.path.exists(lst_raster):
-        print(f"  ⚠ LST raster not found: {lst_raster}")
+        print(f"  [WARNING] LST raster not found: {lst_raster}")
         return None
     
     # Extract LST values
@@ -430,10 +430,10 @@ def process_single_month(month_str, sample_points, river_gdf):
     
     # Filter to study area (within 1500m of river)
     sample_filtered = sample_with_dist[sample_with_dist['Distance'] <= 1500].copy()
-    print(f"  ✓ Samples within 1500m: {len(sample_filtered)}")
+    print(f"  [OK] Samples within 1500m: {len(sample_filtered)}")
     
     if len(sample_filtered) < 100:
-        print("  ⚠ Not enough samples for analysis")
+        print("  [WARNING] Not enough samples for analysis")
         return None
     
     # Run global OLS
@@ -446,7 +446,7 @@ def process_single_month(month_str, sample_points, river_gdf):
     output_csv = os.path.join(OUTPUT_DIR, "GWR_Results", f"GWR_Samples_{month_str}.csv")
     os.makedirs(os.path.dirname(output_csv), exist_ok=True)
     local_result.drop(columns='geometry').to_csv(output_csv, index=False)
-    print(f"  ✓ Sample data saved: {output_csv}")
+    print(f"  [OK] Sample data saved: {output_csv}")
     
     # Generate visualizations
     print(f"\n  Generating visualizations...")
@@ -482,7 +482,7 @@ def main():
         return
     
     # Load river boundary
-    print(f"\n✓ Loading your river boundary: {HAIHE_RIVER}")
+    print(f"\n[OK] Loading your river boundary: {HAIHE_RIVER}")
     river_gdf = gpd.read_file(HAIHE_RIVER)
     print(f"  Features: {len(river_gdf)}, CRS: {river_gdf.crs}")
     

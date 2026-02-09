@@ -53,7 +53,7 @@ SEASONS = {
 def setup():
     """Create output directory."""
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    print(f"✓ Output directory: {OUTPUT_DIR}")
+    print(f"[OK] Output directory: {OUTPUT_DIR}")
 
 # ============================================================================
 # DATA LOADING
@@ -64,7 +64,7 @@ def load_gwr_results(month_str):
     csv_path = os.path.join(GWR_RESULTS_DIR, f"GWR_Multivariate_{month_str}.csv")
     
     if not os.path.exists(csv_path):
-        print(f"  ⚠ No data for month {month_str}")
+        print(f"  [WARNING] No data for month {month_str}")
         return None
     
     df = pd.read_csv(csv_path)
@@ -204,7 +204,7 @@ def plot_coefficient_by_distance(all_results, season='Summer'):
     output_path = os.path.join(OUTPUT_DIR, f'Coefficients_by_Distance_{season}.png')
     plt.savefig(output_path, dpi=300, bbox_inches='tight', facecolor='white')
     plt.close()
-    print(f"  ✓ Saved: {output_path}")
+    print(f"  [OK] Saved: {output_path}")
 
 def plot_seasonal_comparison(all_results):
     """Compare coefficients across seasons."""
@@ -252,7 +252,7 @@ def plot_seasonal_comparison(all_results):
     output_path = os.path.join(OUTPUT_DIR, 'Seasonal_Comparison_Riverside.png')
     plt.savefig(output_path, dpi=300, bbox_inches='tight', facecolor='white')
     plt.close()
-    print(f"  ✓ Saved: {output_path}")
+    print(f"  [OK] Saved: {output_path}")
 
 def plot_variable_importance_riverside(all_results):
     """Show relative importance of each variable by distance band."""
@@ -323,7 +323,7 @@ def plot_variable_importance_riverside(all_results):
     output_path = os.path.join(OUTPUT_DIR, 'Variable_Importance_by_Distance.png')
     plt.savefig(output_path, dpi=300, bbox_inches='tight', facecolor='white')
     plt.close()
-    print(f"  ✓ Saved: {output_path}")
+    print(f"  [OK] Saved: {output_path}")
 
 def plot_cooling_gradient(all_results):
     """Show LST gradient from river and model R²."""
@@ -386,7 +386,7 @@ def plot_cooling_gradient(all_results):
     output_path = os.path.join(OUTPUT_DIR, 'Cooling_Gradient_and_R2.png')
     plt.savefig(output_path, dpi=300, bbox_inches='tight', facecolor='white')
     plt.close()
-    print(f"  ✓ Saved: {output_path}")
+    print(f"  [OK] Saved: {output_path}")
 
 def create_summary_table(all_results):
     """Create a summary table of key findings."""
@@ -421,7 +421,7 @@ def create_summary_table(all_results):
     # Save to CSV
     output_path = os.path.join(OUTPUT_DIR, 'Riverside_Analysis_Summary.csv')
     summary_df.to_csv(output_path, index=False, float_format='%.4f')
-    print(f"\n  ✓ Summary saved: {output_path}")
+    print(f"\n  [OK] Summary saved: {output_path}")
     
     # Print summary
     print("\n" + "="*70)
@@ -481,7 +481,7 @@ def main():
     # Save detailed results
     detail_path = os.path.join(OUTPUT_DIR, 'Riverside_GWR_by_Distance_Band.csv')
     all_results.to_csv(detail_path, index=False, float_format='%.4f')
-    print(f"\n✓ Detailed results saved: {detail_path}")
+    print(f"\n[OK] Detailed results saved: {detail_path}")
     
     # Generate visualizations
     print("\nGenerating visualizations...")
