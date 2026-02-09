@@ -7,6 +7,9 @@ Tianjin/
 .venv/
 venv/
 
+# macOS AppleDouble files
+._*
+
 # Raster data (very large)
 *.tif
 *.tiff
