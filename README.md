@@ -36,9 +36,9 @@ This project implements a **multi-temporal composite analysis** using Landsat 8/
 
 1. The Haihe River provides significant cooling, with **summer cooling reaching 2.63°C** within 300m of the riverbank.
 2. The cooling effect follows a **logarithmic distance-decay pattern**, with the strongest influence within **0-500m** and a transition zone at **500-750m**.
-3. **Built-up density (NDBI)** is the dominant factor affecting LST near the river, contributing ~45% of explained variance in summer.
-4. Seasonal variation is pronounced: **summer cooling is 4× stronger than winter**.
-5. The multivariate GWR model achieves **R² = 0.57–0.66** in the riverside corridor.
+3. **Built-up density (NDBI)** is the strongest positive driver of LST near the river, with a mean coefficient of +3.60 in summer — higher than Distance (+32.70 in standardized units) and NDVI (+1.55).
+4. Seasonal variation is pronounced: **summer cooling is ~3.8× stronger than winter** (2.63°C vs 0.69°C).
+5. The multivariate GWR model achieves **R² = 0.53–0.66** in the riverside corridor.
 
 ---
 
@@ -61,7 +61,7 @@ This project implements a **multi-temporal composite analysis** using Landsat 8/
 
 ### Spatial Analysis
 
-1. **Buffer Analysis:** Multi-ring buffers (30m–1500m) for LST gradient extraction
+1. **Buffer Analysis:** Multi-ring buffers (30m–1000m) for LST gradient extraction
 2. **Geographically Weighted Regression (GWR):**
    - Single-variable: LST ~ Distance
    - Multivariate: LST ~ Distance + NDVI + NDBI
