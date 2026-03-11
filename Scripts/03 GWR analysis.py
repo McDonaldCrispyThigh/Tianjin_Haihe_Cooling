@@ -181,15 +181,21 @@ def local_weighted_regression(sample_df, bandwidth=500):
     return result_df
 
 def run_ols_regression(sample_df):
-    """Run global OLS regression."""
-    print("\n  Running Global OLS Regression...")
+    """Run global logarithmic regression: LST = a * ln(Distance) + b."""
+    print("\n  Running Global Logarithmic Regression...")
     
     X = sample_df['Distance'].values
     y = sample_df['LST'].values
     
-    slope, intercept, r_value, p_value, std_err = stats.linregress(X, y)
+    # Filter out zero/negative distances to avoid ln(0)
+    valid = X > 0
+    X_valid = X[valid]
+    y_valid = y[valid]
     
-    print(f"    [OK] Equation: LST = {slope:.6f} × Distance + {intercept:.2f}")
+    ln_X = np.log(X_valid)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(ln_X, y_valid)
+    
+    print(f"    [OK] Equation: LST = {slope:.4f} × ln(Distance) + {intercept:.2f}")
     print(f"    [OK] R² = {r_value**2:.4f}")
     print(f"    [OK] p-value = {p_value:.2e}")
     
@@ -206,7 +212,7 @@ def run_ols_regression(sample_df):
 # ============================================================================
 
 def plot_scatter_regression(sample_df, ols_result, month_str, output_path):
-    """Create scatter plot with regression line and equation."""
+    """Create scatter plot with logarithmic regression curve and equation."""
     fig, ax = plt.subplots(figsize=(12, 8))
     
     x = sample_df['Distance'].values
@@ -219,14 +225,14 @@ def plot_scatter_regression(sample_df, ols_result, month_str, output_path):
     # Scatter plot with density coloring
     ax.scatter(x[idx], y[idx], s=10, alpha=0.3, c='#3498db', label='Sample Points')
     
-    # Regression line
-    x_line = np.linspace(x.min(), x.max(), 100)
-    y_line = ols_result['slope'] * x_line + ols_result['intercept']
-    ax.plot(x_line, y_line, 'r-', linewidth=3, label='OLS Regression')
+    # Logarithmic regression curve
+    x_line = np.linspace(max(x.min(), 1), x.max(), 200)
+    y_line = ols_result['slope'] * np.log(x_line) + ols_result['intercept']
+    ax.plot(x_line, y_line, 'r-', linewidth=3, label='Logarithmic Fit')
     
     # Display equation
     sign = '+' if ols_result['intercept'] >= 0 else '-'
-    equation = f"LST = {ols_result['slope']:.6f} × Distance {sign} {abs(ols_result['intercept']):.2f}"
+    equation = f"LST = {ols_result['slope']:.4f} × ln(Distance) {sign} {abs(ols_result['intercept']):.2f}"
     stats_text = f"R² = {ols_result['r_squared']:.4f}\np-value = {ols_result['p_value']:.2e}\nn = {len(x)}"
     
     ax.text(0.98, 0.05, f"Regression Equation:\n{equation}\n\n{stats_text}",
@@ -236,7 +242,7 @@ def plot_scatter_regression(sample_df, ols_result, month_str, output_path):
     
     ax.set_xlabel('Distance from Haihe River (m)', fontsize=13)
     ax.set_ylabel('Land Surface Temperature (°C)', fontsize=13)
-    ax.set_title(f'Distance-LST Regression Analysis - {MONTH_NAMES[month_str]}\n'
+    ax.set_title(f'Distance-LST Logarithmic Regression - {MONTH_NAMES[month_str]}\n'
                  f'Tianjin Haihe River Urban Cooling Effect', fontsize=14, fontweight='bold')
     ax.legend(loc='upper left', fontsize=11)
     ax.grid(True, alpha=0.3)
@@ -372,7 +378,7 @@ def create_monthly_summary(all_results):
     
     for result in all_results:
         months.append(MONTH_NAMES[result['month']][:3])
-        slopes.append(result['ols']['slope'] * 1000)  # Convert to °C/km
+        slopes.append(result['ols']['slope'])  # °C per unit ln(m)
         r2_values.append(result['ols']['r_squared'])
     
     # Left: Slopes
@@ -381,8 +387,8 @@ def create_monthly_summary(all_results):
     bars1 = ax1.bar(months, slopes, color=colors1, edgecolor='black')
     ax1.axhline(y=0, color='black', linewidth=0.5)
     ax1.set_xlabel('Month', fontsize=12)
-    ax1.set_ylabel('Slope (°C/km)', fontsize=12)
-    ax1.set_title('Distance Coefficient by Month\n(Positive = warming with distance)', fontsize=13, fontweight='bold')
+    ax1.set_ylabel('Coefficient a (°C / ln(m))', fontsize=12)
+    ax1.set_title('Logarithmic Coefficient by Month\n(Positive = warming with distance)', fontsize=13, fontweight='bold')
     ax1.grid(True, axis='y', alpha=0.3)
     
     # Right: R² values
@@ -517,10 +523,10 @@ def main():
         print("\n" + "="*70)
         print("ANALYSIS SUMMARY")
         print("="*70)
-        print(f"\n{'Month':<12} {'Slope (°C/m)':<15} {'R²':<10} {'p-value':<15}")
+        print(f"\n{'Month':<12} {'a (°C/ln m)':<15} {'R²':<10} {'p-value':<15}")
         print("-" * 55)
         for r in all_results:
-            print(f"{MONTH_NAMES[r['month']]:<12} {r['ols']['slope']:<15.6f} "
+            print(f"{MONTH_NAMES[r['month']]:<12} {r['ols']['slope']:<15.4f} "
                   f"{r['ols']['r_squared']:<10.4f} {r['ols']['p_value']:<15.2e}")
     
     print("\n" + "="*70)
