@@ -13,7 +13,7 @@
 
 Urban Heat Islands (UHI) pose escalating public health and energy challenges in rapidly urbanizing megacities. While vast literature examines heat island formation through impervious surface expansion (Imhoff et al., 2010) and the cooling benefits of urban green infrastructure (Zhang et al., 2014), the spatially heterogeneous cooling mechanisms of urban rivers — particularly linear water bodies threading through dense built-up fabrics — remain under-characterized across seasons.
 
-This project investigates the **Urban Cooling Island (UCI)** effect of the Haihe River in Tianjin, China. Leveraging Landsat 8/9 Collection 2 Level-2 imagery from 2020–2025, we construct **12 monthly climatological baselines** through five-year median compositing. We apply a multi-method analytical framework — **multi-ring buffer analysis**, **univariate and multivariate Geographically Weighted Regression (GWR)** (Wang et al., 2020), and **spatial autocorrelation diagnostics** (Moran's I, LISA, Getis-Ord Gi*) — to quantify the distance-decay pattern, seasonal dynamics, and land-cover drivers of the river's cooling effect within a 1,500 m riverside corridor across six central urban districts.
+This project investigates the **Urban Cooling Island (UCI)** effect of the Haihe River in Tianjin, China. Leveraging Landsat 8/9 Collection 2 Level-2 imagery from 2020–2025, we construct **12 monthly climatological baselines** through five-year median compositing. We apply a multi-method analytical framework — **multi-ring buffer analysis**, **univariate and multivariate Geographically Weighted Regression (GWR)** (Wang et al., 2020), and **spatial autocorrelation diagnostics** (Moran's I, LISA, Getis-Ord Gi*) — to quantify the distance-decay pattern, seasonal dynamics, and land-cover drivers of the river's cooling effect within a 1,500 m riverside corridor along the full length of the Haihe River — from central Tianjin through Binhai New Area to the Bohai Bay coast.
 
 Our results reveal summer cooling of up to **2.63°C** within 300 m of the riverbank, a logarithmic distance-decay pattern with a **Threshold Value of Efficiency (TVoE)** extending to ~870 m in summer, and strong seasonal asymmetry — consistent with findings on large planar water bodies in the same region (Wang et al., 2023). A sinusoidal model explains **90.5%** of the seasonal variance in cooling intensity.
 
@@ -186,14 +186,14 @@ The seasonal comparison below overlays all four seasons for each coefficient pro
 
 ## Study Area
 
-**Tianjin, China** — 6 Central Urban Districts: Heping, Nankai, Hexi, Hedong, Hebei, Hongqiao
+**Tianjin, China** — Full Haihe River corridor: central urban core → Binhai New Area → Bohai Bay coast
 
 | Parameter | Value |
 |:---------:|:-----:|
 | Bounding Box (WGS 84) | 116.9528°–117.8853°E, 38.8987°–39.3504°N |
 | Climate | Warm-temperate semi-humid continental monsoon |
 | River | Haihe River (the "Blue Spine" of Tianjin) |
-| Urban morphology | High-density mixed residential/commercial |
+| Land cover gradient | Dense urban core → industrial/port zones (Binhai) → coastal wetland and reclaimed land (Bohai Bay) |
 
 ---
 
