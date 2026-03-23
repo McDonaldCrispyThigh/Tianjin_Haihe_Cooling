@@ -30,6 +30,16 @@ Our results reveal summer cooling of up to **2.63°C** within 300 m of the river
 | **Autumn** (Sep–Nov) | 22.10 | 23.22 | −1.12 | 0.530 |
 | **Winter** (Dec–Feb) | 5.63 | 6.32 | −0.69 | 0.577 |
 
+The figure below shows the July (peak summer) cooling gradient. LST rises steeply within the first 300 m of the riverbank, following a logarithmic curve, then levels off toward the urban background temperature beyond ~750 m. Error bars represent the standard deviation of LST within each buffer ring. The fitted equation and R² are displayed directly on the chart.
+
+![July Cooling Gradient](Maps/Buffer_Analysis/Cooling_Gradient_07.png)
+
+The bar chart below summarises cooling intensity (ΔT = LST_far − LST_near) across all 12 months, confirming that the river exerts a positive cooling effect year-round, with a clear summer peak and winter minimum.
+
+![Monthly Cooling Intensity](Maps/Buffer_Analysis/Monthly_Cooling_Intensity.png)
+
+---
+
 ### 2. Seasonal Dynamics (Buffer Analysis: 0–1,500 m)
 
 | Season | Mean ΔT (°C) | Mean TVoE (m) | Peak Month | R² Range |
@@ -41,6 +51,20 @@ Our results reveal summer cooling of up to **2.63°C** within 300 m of the river
 
 **Sinusoidal fit:** ΔT(t) = 1.16 · sin(2πt/12 + φ) + 1.80, **R² = 0.905**
 
+The sinusoidal model below captures the annual cycle of cooling intensity. Each dot represents an observed monthly ΔT; the red curve is the fitted model. The peak is marked with an arrow. The close agreement between the model and observations (R² = 0.905) indicates that the river's cooling mechanism is highly predictable at the seasonal scale.
+
+![Seasonal Cycle of Cooling Intensity](Maps/Seasonal_Analysis/Seasonal_Cycle_DeltaT.png)
+
+The two-panel figure below gives a complementary view: the upper panel compares absolute LST near and far from the river across all months, with the shaded area representing the cooling effect; the lower panel shows the derived monthly ΔT as a bar chart.
+
+![Phase Analysis: Near vs Far LST and Delta-T](Maps/Seasonal_Analysis/Phase_Analysis_LST_DeltaT.png)
+
+The overlay below places all 12 monthly LST gradient profiles on a single axis. The warm-to-cool colour gradient (red = summer, blue = winter) makes the seasonal separation immediately visible. Note how the profiles fan out near the river (left side) and converge toward the urban background at 1,500 m.
+
+![Monthly Gradient Profiles Overlay](Maps/Seasonal_Analysis/Monthly_Gradient_Profiles_Overlay.png)
+
+---
+
 ### 3. Multivariate GWR Coefficients (Summer, 0–300 m)
 
 | Predictor | Mean Coefficient | Role |
@@ -48,6 +72,16 @@ Our results reveal summer cooling of up to **2.63°C** within 300 m of the river
 | Distance to River | +32.70 | Farther from river → higher LST |
 | NDBI (Built-up) | +3.60 | Impervious surface amplifies warming |
 | NDVI (Vegetation) | +1.55 | Spatially varying cooling co-benefit |
+
+The four-panel figure below shows the spatial distribution of GWR coefficients for July. Top-left: LST map. Top-right: local coefficient for Distance (how strongly proximity to the river suppresses LST at each location). Bottom-left: NDVI coefficient. Bottom-right: local R². The spatial variation in coefficients confirms that the river's influence is not uniform — it is strongest in dense urban fabric directly adjacent to the water.
+
+![July Multivariate GWR Coefficient Maps](Maps/GWR_Multivariate/GWR_Coefficients_07.png)
+
+The grouped bar chart below compares the mean absolute coefficient of each predictor across all 12 months, revealing the relative importance of Distance, NDVI, and NDBI in explaining LST variance throughout the year.
+
+![Variable Importance by Month](Maps/GWR_Multivariate/Variable_Importance_Monthly.png)
+
+---
 
 ### 4. Principal Conclusions
 
@@ -101,6 +135,52 @@ Script 07  ──▶  Riverside corridor analysis (0–1,500 m), distance-band G
 - **GWR corridor bands:** 0–100, 100–200, 200–300, 300–500, 500–750, 750–1000, 1000–1500 m
 - **Kernel:** Gaussian, fixed bandwidth = 500 m
 - **Sample spacing:** 200 m (univariate), 100 m (multivariate)
+
+---
+
+## Visual Outputs
+
+### Univariate GWR (Script 03)
+
+The side-by-side map below is produced for each month. The left panel shows the raw LST distribution across the study area; the right panel shows the spatially varying local regression slope (how strongly distance predicts LST at each location). Warmer colours on the right indicate locations where the distance-to-river relationship is most pronounced.
+
+![July Local Regression Map](Maps/GWR_SingleVar/Local_Regression_07.png)
+
+The summary chart below aggregates univariate GWR results across all 12 months. Left: monthly slope coefficient (°C per km), which is consistently positive, confirming that LST always increases with distance from the river. Right: monthly R², which peaks in summer when the thermal contrast is largest.
+
+![Monthly GWR Regression Summary](Maps/GWR_SingleVar/Monthly_Regression_Summary.png)
+
+---
+
+### Spatial Autocorrelation (Script 04)
+
+The LISA cluster map below (July) identifies statistically significant spatial clusters in LST. Red (High-High) clusters mark urban heat islands; blue (Low-Low) clusters mark the cold corridor along the river. Outlier pixels at cluster boundaries are shown in orange and light blue. Only significant clusters (p < 0.05, 999 permutations) are coloured.
+
+![July LISA Cluster Map](Maps/Spatial_Autocorrelation/LISA_Cluster_07.png)
+
+The Getis-Ord Gi* map complements the LISA analysis by measuring the intensity of clustering rather than the cluster type. Locations with Gi* z-scores above ±2.58 (99% confidence) are confirmed hot or cold spots. The cold spot corridor following the Haihe River is consistently detected across all seasons.
+
+![July Getis-Ord Hot/Cold Spots](Maps/Spatial_Autocorrelation/Getis_Ord_07.png)
+
+The summary chart below tracks Global Moran's I and the count of significant hot/cold spots across all 12 months. All months show highly significant positive spatial autocorrelation (I > 0, p < 0.001), with hot-spot counts peaking in summer.
+
+![Monthly Spatial Autocorrelation Summary](Maps/Spatial_Autocorrelation/Monthly_Spatial_Autocorrelation_Summary.png)
+
+---
+
+### Riverside Corridor Analysis (Script 07)
+
+The two-panel figure below synthesises the full riverside corridor. Left: LST cooling gradient by season — summer shows the steepest decay from the riverbank outward. Right: model R² by distance band, showing that GWR explains more variance in zones immediately adjacent to the river (where the cooling signal dominates) than in outer bands where urban morphology is more complex.
+
+![Riverside Cooling Gradient and R²](Maps/Riverside_Analysis/Cooling_Gradient_and_R2.png)
+
+The stacked bar chart below shows the relative contribution of each predictor (Distance, NDVI, NDBI) to explaining LST variance within each distance band during summer. Distance dominates in the innermost band (0–100 m), while NDBI becomes the primary driver beyond 300 m as the direct river effect weakens and impervious surface heterogeneity takes over.
+
+![Variable Importance by Distance Band](Maps/Riverside_Analysis/Variable_Importance_by_Distance.png)
+
+The seasonal comparison below overlays all four seasons for each coefficient profile. The Distance coefficient is consistently largest in summer, reflecting the amplified thermal contrast between the river and surrounding urban fabric when solar loading is highest.
+
+![Seasonal Comparison of Riverside GWR Coefficients](Maps/Riverside_Analysis/Seasonal_Comparison_Riverside.png)
 
 ---
 
@@ -233,4 +313,3 @@ GEOG 4503: GIS Project Management
 ## License
 
 This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
-
