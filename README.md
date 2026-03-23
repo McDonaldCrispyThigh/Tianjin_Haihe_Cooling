@@ -11,11 +11,11 @@
 
 ## Abstract
 
-Urban Heat Islands (UHI) pose escalating public health and energy challenges in rapidly urbanizing megacities. While vast literature examines heat island formation through impervious surface expansion (Imhoff et al., 2010) and the cooling benefits of urban green infrastructure (Zhang et al., 2014), the spatially heterogeneous cooling mechanisms of urban rivers — particularly linear water bodies threading through dense built-up fabrics — remain under-characterized across seasons.
+Urban Heat Islands (UHI) pose escalating public health and energy challenges in rapidly urbanizing megacities. While vast literature examines heat island formation through impervious surface expansion (Imhoff et al., 2010) and the cooling benefits of urban green infrastructure (Zhang et al., 2014), the spatially heterogeneous cooling mechanisms of urban rivers, particularly linear water bodies threading through dense built-up fabrics, remain under-characterized across seasons.
 
-This project investigates the **Urban Cooling Island (UCI)** effect of the Haihe River in Tianjin, China. Leveraging Landsat 8/9 Collection 2 Level-2 imagery from 2020–2025, we construct **12 monthly climatological baselines** through five-year median compositing. We apply a multi-method analytical framework — **multi-ring buffer analysis**, **univariate and multivariate Geographically Weighted Regression (GWR)** (Wang et al., 2020), and **spatial autocorrelation diagnostics** (Moran's I, LISA, Getis-Ord Gi*) — to quantify the distance-decay pattern, seasonal dynamics, and land-cover drivers of the river's cooling effect within a 1,500 m riverside corridor along the full length of the Haihe River — from central Tianjin through Binhai New Area to the Bohai Bay coast.
+This project investigates the **Urban Cooling Island (UCI)** effect of the Haihe River in Tianjin, China. Leveraging Landsat 8/9 Collection 2 Level-2 imagery from 2020–2025, we construct **12 monthly climatological baselines** through five-year median compositing. We apply a multi-method analytical framework — **multi-ring buffer analysis**, **univariate and multivariate Geographically Weighted Regression (GWR)** (Wang et al., 2020), and **spatial autocorrelation diagnostics** (Moran's I, LISA, Getis-Ord Gi*) — to quantify the distance-decay pattern, seasonal dynamics, and land-cover drivers of the river's cooling effect within a 1,500 m riverside corridor along the full length of the Haihe River, from central Tianjin through Binhai New Area to the Bohai Bay coast.
 
-Our results reveal summer cooling of up to **2.63°C** within 300 m of the riverbank, a logarithmic distance-decay pattern with a **Threshold Value of Efficiency (TVoE)** extending to ~870 m in summer, and strong seasonal asymmetry — consistent with findings on large planar water bodies in the same region (Wang et al., 2023). A sinusoidal model explains **90.5%** of the seasonal variance in cooling intensity.
+Our results reveal summer cooling of up to **2.63°C** within 300 m of the riverbank, a logarithmic distance-decay pattern with a **Threshold Value of Efficiency (TVoE)** extending to ~870 m in summer, and strong seasonal asymmetry, consistent with findings on large planar water bodies in the same region (Wang et al., 2023). A sinusoidal model explains **90.5%** of the seasonal variance in cooling intensity.
 
 ---
 
@@ -73,7 +73,7 @@ The overlay below places all 12 monthly LST gradient profiles on a single axis. 
 | NDBI (Built-up) | +3.60 | Impervious surface amplifies warming |
 | NDVI (Vegetation) | +1.55 | Spatially varying cooling co-benefit |
 
-The four-panel figure below shows the spatial distribution of GWR coefficients for July. Top-left: LST map. Top-right: local coefficient for Distance (how strongly proximity to the river suppresses LST at each location). Bottom-left: NDVI coefficient. Bottom-right: local R². The spatial variation in coefficients confirms that the river's influence is not uniform — it is strongest in dense urban fabric directly adjacent to the water.
+The four-panel figure below shows the spatial distribution of GWR coefficients for July. Top-left: LST map. Top-right: local coefficient for Distance (how strongly proximity to the river suppresses LST at each location). Bottom-left: NDVI coefficient. Bottom-right: local R². The spatial variation in coefficients confirms that the river's influence is not uniform; it is strongest in dense urban fabric directly adjacent to the water.
 
 ![July Multivariate GWR Coefficient Maps](Maps/GWR_Multivariate/GWR_Coefficients_07.png)
 
@@ -86,8 +86,8 @@ The grouped bar chart below compares the mean absolute coefficient of each predi
 ### 4. Principal Conclusions
 
 1. **Summer cooling reaches 2.63°C** within 300 m (GWR corridor), cross-validated by buffer-based ΔT of 2.57°C.
-2. The cooling effect follows a **logarithmic distance-decay** — strongest within 0–500 m, transitioning at 500–750 m. TVoE extends to **~870 m** in summer, shrinking to **~450 m** in winter.
-3. **Built-up density (NDBI)** is the dominant warming driver near the river — aligning with Imhoff et al.'s (2010) regional-scale finding that impervious surface fraction explains up to 90% of LST variance.
+2. The cooling effect follows a **logarithmic distance-decay**, strongest within 0–500 m and transitioning at 500–750 m. TVoE extends to **~870 m** in summer, shrinking to **~450 m** in winter.
+3. **Built-up density (NDBI)** is the dominant warming driver near the river, aligning with Imhoff et al.'s (2010) regional-scale finding that impervious surface fraction explains up to 90% of LST variance.
 4. **Summer cooling is ~3.8× stronger than winter** (2.63°C vs. 0.69°C), paralleling the seasonal asymmetry documented for Meijiang Lake in Tianjin (Wang et al., 2023). A sinusoidal model captures **90.5%** of this variance.
 5. The multivariate GWR achieves **R² = 0.53–0.66** in the corridor; buffer-based regression R² ranges from 0.16 (winter) to 0.64 (autumn).
 
@@ -170,7 +170,7 @@ The summary chart below tracks Global Moran's I and the count of significant hot
 
 ### Riverside Corridor Analysis (Script 07)
 
-The two-panel figure below synthesises the full riverside corridor. Left: LST cooling gradient by season — summer shows the steepest decay from the riverbank outward. Right: model R² by distance band, showing that GWR explains more variance in zones immediately adjacent to the river (where the cooling signal dominates) than in outer bands where urban morphology is more complex.
+The two-panel figure below synthesises the full riverside corridor. Left: LST cooling gradient by season (summer shows the steepest decay from the riverbank outward). Right: model R² by distance band, showing that GWR explains more variance in zones immediately adjacent to the river (where the cooling signal dominates) than in outer bands where urban morphology is more complex.
 
 ![Riverside Cooling Gradient and R²](Maps/Riverside_Analysis/Cooling_Gradient_and_R2.png)
 
@@ -186,7 +186,7 @@ The seasonal comparison below overlays all four seasons for each coefficient pro
 
 ## Study Area
 
-**Tianjin, China** — Full Haihe River corridor: central urban core → Binhai New Area → Bohai Bay coast
+**Tianjin, China** | Full Haihe River corridor: central urban core to Binhai New Area to Bohai Bay coast
 
 | Parameter | Value |
 |:---------:|:-----:|
@@ -312,4 +312,4 @@ GEOG 4503: GIS Project Management
 
 ## License
 
-This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
